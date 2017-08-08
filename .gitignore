@@ -1,0 +1,7 @@
+# Created by .ignore support plugin (hsz.mobi)
+/firebase.json
+/.firebaserc
+/.idea/
+/functions/package-lock.json
+
+/functions/node_modules/
