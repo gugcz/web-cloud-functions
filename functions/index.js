@@ -17,7 +17,7 @@ exports.getOrganizers = functions.https.onRequest((request, response) => {
     let organizersReference = admin.database().ref('organizers');
 
     if (chapter) {
-        organizersPromise = organizersReference.orderByChild('chapters/'+ chapter).equalTo(true).once('value');
+        organizersPromise = organizersReference.orderByChild('chapters/' + chapter).equalTo(true).once('value');
     }
     else {
         organizersPromise = organizersReference.once('value');
@@ -63,4 +63,26 @@ exports.getOrganizers = functions.https.onRequest((request, response) => {
     }
 
 
+});
+
+exports.getChapter = functions.https.onRequest((request, response) => {
+    let chapterId = request.query.id;
+
+    if (!chapterId) {
+        response.status(400).send("Chapter ID not found!");
+    }
+
+    let chapterPromise = admin.database().ref('chapters/' + chapterId).once('value');
+
+    chapterPromise.then(chapterSnapshot => sendChapterInfo(chapterSnapshot));
+
+    function sendChapterInfo(chapterSnapshot) {
+        let chapter = chapterSnapshot.val();
+
+        response.send({
+            name: chapter.name,
+            section: chapter.section,
+            description: chapter.description
+        })
+    }
 });
