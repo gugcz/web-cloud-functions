@@ -36,7 +36,10 @@ exports.getOrganizers = functions.https.onRequest((request, response) => {
 
         // TODO - Remove inactive
         var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(function filterOrganizerArray(organizer) {
-            return {name: organizer.name}
+            return {
+                name: organizer.name,
+                profilePicture: organizer.profilePicture
+            }
         }))
 
         response.send(filteredAndShuffledOrganizersArray)
