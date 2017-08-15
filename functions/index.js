@@ -38,7 +38,8 @@ exports.getOrganizers = functions.https.onRequest((request, response) => {
         var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(function filterOrganizerArray(organizer) {
             return {
                 name: organizer.name,
-                profilePicture: organizer.profilePicture
+                profilePicture: organizer.profilePicture,
+                links: organizer.links
             }
         }))
 
@@ -85,7 +86,8 @@ exports.getChapter = functions.https.onRequest((request, response) => {
         response.send({
             name: chapter.name,
             section: chapter.section,
-            description: chapter.description
+            description: chapter.description,
+            links: chapter.links
         })
     }
 });
