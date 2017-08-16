@@ -1,94 +1,20 @@
 const functions = require('firebase-functions');
+const organizerModule = require('./organizer')
+const chapterModule = require('./chapter')
 
 const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
+const database = admin.database()
 
-// Create and Deploy Your First Cloud Functions
-// https://firebase.google.com/docs/functions/write-firebase-functions
-exports.helloGDG = functions.https.onRequest((request, response) => {
-    var gdgNamePromise = admin.database().ref('sections/gdg/name').once('value');
-
-    gdgNamePromise.then(nameSnapshot => response.send("Hello " + nameSnapshot.val() + " from Firebase!"));
+// Organizers functions
+exports.getOrganizers = functions.https.onRequest((req, res) => {
+    organizerModule.getOrganizers(req, res, database);
 });
 
-exports.getOrganizers = functions.https.onRequest((request, response) => {
-    var organizersPromise;
-    let chapter = request.query.chapter;
-    let organizersReference = admin.database().ref('organizers');
-
-    if (chapter) {
-        organizersPromise = organizersReference.orderByChild('chapters/' + chapter).equalTo(true).once('value');
-    }
-    else {
-        organizersPromise = organizersReference.once('value');
-    }
-
-
-    organizersPromise.then(organizerListSnapshot => sendOrganizerListWithName(organizerListSnapshot));
-
-
-    function sendOrganizerListWithName(organizerListSnapshot) {
-        var organizers = organizerListSnapshot.val()
-
-        var organizersArray = Object.keys(organizers).map(function (k) {
-            return organizers[k]
-        });
-
-        // TODO - Remove inactive
-        var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(function filterOrganizerArray(organizer) {
-            return {
-                name: organizer.name,
-                profilePicture: organizer.profilePicture,
-                links: organizer.links
-            }
-        }))
-
-        response.send(filteredAndShuffledOrganizersArray)
-
-    }
-
-    function shuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
-
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
-
-            // Pick a remaining element...
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
-
-            // And swap it with the current element.
-            temporaryValue = array[currentIndex];
-            array[currentIndex] = array[randomIndex];
-            array[randomIndex] = temporaryValue;
-        }
-
-        return array;
-    }
-
-
+// Chapter functions
+exports.getChapter = functions.https.onRequest((req, res) => {
+    chapterModule.getChapter(req, res, database);
 });
-
-exports.getChapter = functions.https.onRequest((request, response) => {
-    let chapterId = request.query.id;
-
-    if (!chapterId) {
-        response.status(400).send("Chapter ID not found!");
-    }
-
-    let chapterPromise = admin.database().ref('chapters/' + chapterId).once('value');
-
-    chapterPromise.then(chapterSnapshot => sendChapterInfo(chapterSnapshot));
-
-    function sendChapterInfo(chapterSnapshot) {
-        let chapter = chapterSnapshot.val();
-
-        response.send({
-            name: chapter.name,
-            section: chapter.section,
-            description: chapter.description,
-            email: chapter.email,
-            links: chapter.links
-        })
-    }
+exports.getChapters = functions.https.onRequest((req, res) => {
+    chapterModule.getChapters(req, res, database);
 });
