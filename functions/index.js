@@ -87,6 +87,7 @@ exports.getChapter = functions.https.onRequest((request, response) => {
             name: chapter.name,
             section: chapter.section,
             description: chapter.description,
+            email: chapter.email,
             links: chapter.links
         })
     }
