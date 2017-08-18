@@ -40,3 +40,13 @@ function pushEventToFirebase(event, database) {
     var eventRef = database.ref('events/a2-workshop').set(event)
     eventRef.set(event)
 }
+
+exports.getEventUrl = function(eventName) {
+    var accentModule = require('diacritics')
+    return accentModule.remove(eventName.toString()).toLowerCase()
+        .replace(/\s+/g, '-')           // Replace spaces with -
+        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+        .replace(/^-+/, '')             // Trim - from start of text
+        .replace(/-+$/, '');
+}
