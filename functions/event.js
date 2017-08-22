@@ -42,26 +42,36 @@ function pushEventToFirebase(event, database) {
 }
 
 exports.UrlCreator = function (event, usedUrls) {
-    this.event = event
-    this.usedUrls = usedUrls
 
     this.getUrl = function () {
-        if (this.event.isMultipleEvent) {
+        if (event.isMultipleEvent) {
             return getUrlForMultipleEvent()
         }
         else {
-            return getUrlForSingleEvent(this.event)
+            return getUrlForSingleEvent()
         }
     }
 
-    function getUrlForMultipleEvent(event) {
+    function getUrlForMultipleEvent() {
         return ''
     }
 
-    function getUrlForSingleEvent(event) {
+    function getUrlForSingleEvent() {
         var possibleUrl = removeSpacesAndSpecialChars(removeDiacritics(event.name).toLowerCase())
         if (urlHasDuplicates(possibleUrl)) {
-            return addCityToUrl(possibleUrl, event.venue)
+            return repairUrlForNoDuplicates(possibleUrl, event.venue)
+        }
+        return possibleUrl
+    }
+
+    function addNumberToUrl(url, number) {
+        return url + '-' + number.toString()
+    }
+
+    function repairUrlForNoDuplicates(url, venue) {
+        var possibleUrl = addCityToUrl(url, venue)
+        if (urlHasDuplicates(possibleUrl)) {
+            return addNumberToUrl(possibleUrl, getNumberOfDuplicates(possibleUrl) + 1)
         }
         return possibleUrl
     }
@@ -81,6 +91,12 @@ exports.UrlCreator = function (event, usedUrls) {
 
     function urlHasDuplicates(possibleUrl) {
         return usedUrls.indexOf(possibleUrl) !== -1
+    }
+
+    function getNumberOfDuplicates(possibleUrl) {
+        return usedUrls.filter(function (usedUrl) {
+            return usedUrl.startsWith(possibleUrl)
+        }).length
     }
 
     function addCityToUrl(url, city) {

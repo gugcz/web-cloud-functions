@@ -88,5 +88,40 @@ describe("An UrlCreator for single event", function () {
         namesCitiesAndUrls.forEach(testNameToUrl);
     });
 
+    it("creates unique url, in case of problem with added city it adds number to url", function () {
+        let NameCityAndUrl = function (name, city, url) {
+            this.name = name
+            this.city = city
+            this.url = url
+        };
+
+        usedUrlsMock = [
+            '3d-tisk',
+            '3d-tisk-brno',
+            'gdg-garage',
+            'gdg-garage-brno',
+            'gdg-garage-zdar',
+            'gdg-garage-zdar-2',
+            'ctvrtkon',
+            'ctvrtkon-budejovice'
+        ]
+
+
+        let namesCitiesAndUrls = [
+            new NameCityAndUrl('3D tisk', 'Brno', '3d-tisk-brno-2'),
+            new NameCityAndUrl('GDG Garage', 'Žďár', 'gdg-garage-zdar-3'),
+            new NameCityAndUrl('Čtvrtkon', 'Budějovice', 'ctvrtkon-budejovice-2')
+        ];
+
+        let testNameToUrl = function (nameCityAndUrl) {
+            event.name = nameCityAndUrl.name
+            event.venue = nameCityAndUrl.city
+            var urlCreator = new UrlCreator(event, usedUrlsMock)
+            expect(urlCreator.getUrl()).toBe(nameCityAndUrl.url)
+        }
+
+        namesCitiesAndUrls.forEach(testNameToUrl);
+    });
+
 
 });
