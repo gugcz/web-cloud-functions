@@ -4,9 +4,8 @@ describe("An UrlCreator for single event", function () {
 
     var usedUrlsMock = [
         '3d-tisk',
-        'gdg-garage-zdar',
-        'gdg-garage-zdar-1',
-        'ctvrtkon-budejovice',
+        'gdg-garage',
+        'ctvrtkon',
     ]
 
     var event = {
@@ -18,7 +17,7 @@ describe("An UrlCreator for single event", function () {
             "end": "2017-09-03T18:00:00.000Z"
         },
         "description": "...",
-        "venue": null,
+        "venue": "Brno",
         "chapters": [
             "gdg-brno"
         ],
@@ -63,6 +62,30 @@ describe("An UrlCreator for single event", function () {
         }
 
         namesAndUrls.forEach(testNameToUrl);
+    });
+
+    it("creates unique url, in case of problem it add city name to url", function () {
+        let NameCityAndUrl = function (name, city, url) {
+            this.name = name
+            this.city = city
+            this.url = url
+        };
+
+
+        let namesCitiesAndUrls = [
+            new NameCityAndUrl('3D tisk', 'Brno', '3d-tisk-brno'),
+            new NameCityAndUrl('GDG Garage', 'Žďár', 'gdg-garage-zdar'),
+            new NameCityAndUrl('Čtvrtkon', 'Budějovice', 'ctvrtkon-budejovice')
+        ];
+
+        let testNameToUrl = function (nameCityAndUrl) {
+            event.name = nameCityAndUrl.name
+            event.venue = nameCityAndUrl.city
+            var urlCreator = new UrlCreator(event, usedUrlsMock)
+            expect(urlCreator.getUrl()).toBe(nameCityAndUrl.url)
+        }
+
+        namesCitiesAndUrls.forEach(testNameToUrl);
     });
 
 

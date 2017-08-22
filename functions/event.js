@@ -59,7 +59,11 @@ exports.UrlCreator = function (event, usedUrls) {
     }
 
     function getUrlForSingleEvent(event) {
-        return removeSpacesAndSpecialChars(toLowerCase(removeDiacritics(event.name)))
+        var possibleUrl = removeSpacesAndSpecialChars(removeDiacritics(event.name).toLowerCase())
+        if (urlHasDuplicates(possibleUrl)) {
+            return addCityToUrl(possibleUrl, event.venue)
+        }
+        return possibleUrl
     }
 
     function removeDiacritics(string) {
@@ -75,8 +79,12 @@ exports.UrlCreator = function (event, usedUrls) {
             .replace(/-+$/, '');
     }
 
-    function toLowerCase(string) {
-        return string.toLowerCase()
+    function urlHasDuplicates(possibleUrl) {
+        return usedUrls.indexOf(possibleUrl) !== -1
+    }
+
+    function addCityToUrl(url, city) {
+        return url + '-' + removeDiacritics(city).toLowerCase()
     }
 
 }
