@@ -41,12 +41,42 @@ function pushEventToFirebase(event, database) {
     eventRef.set(event)
 }
 
-exports.getEventUrl = function(eventName) {
-    var accentModule = require('diacritics')
-    return accentModule.remove(eventName.toString()).toLowerCase()
-        .replace(/\s+/g, '-')           // Replace spaces with -
-        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-        .replace(/^-+/, '')             // Trim - from start of text
-        .replace(/-+$/, '');
+exports.UrlCreator = function (event, usedUrls) {
+    this.event = event
+    this.usedUrls = usedUrls
+
+    this.getUrl = function () {
+        if (this.event.isMultipleEvent) {
+            return getUrlForMultipleEvent()
+        }
+        else {
+            return getUrlForSingleEvent(this.event)
+        }
+    }
+
+    function getUrlForMultipleEvent(event) {
+        return ''
+    }
+
+    function getUrlForSingleEvent(event) {
+        return removeSpacesAndSpecialChars(toLowerCase(removeDiacritics(event.name)))
+    }
+
+    function removeDiacritics(string) {
+        var accentModule = require('diacritics')
+        return accentModule.remove(string)
+    }
+
+    function removeSpacesAndSpecialChars(string) {
+        return string.replace(/\s+/g, '-')           // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+            .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+            .replace(/^-+/, '')             // Trim - from start of text
+            .replace(/-+$/, '');
+    }
+
+    function toLowerCase(string) {
+        return string.toLowerCase()
+    }
+
 }
