@@ -136,7 +136,7 @@ describe("An UrlCreator for single event", function () {
 
 describe("An UrlCreator for multiple event", function () {
 
-    it("unify numbering before creating url", function () {
+    it("unify numbering before creating url and then creates url as in single event", function () {
         event.isMultipleEvent = true
         let NameAndUrl = function (name, url) {
             this.name = name
