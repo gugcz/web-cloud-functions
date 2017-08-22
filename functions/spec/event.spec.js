@@ -1,5 +1,40 @@
 const eventModule = require('./../event')
 var UrlCreator = eventModule.UrlCreator
+
+var event = {
+    "name": "A2 Workshop",
+    "subtitle": "Přijď si A2 vyzkoušet v praxi!",
+    "isMultipleEvent": false,
+    "dates": {
+        "start": "2017-09-03T16:00:00.000Z",
+        "end": "2017-09-03T18:00:00.000Z"
+    },
+    "description": "...",
+    "venue": "Brno",
+    "chapters": [
+        "gdg-brno"
+    ],
+    "guarantee": "-Kq-U7--b_XqZmhYoy3v",
+    "organizers": {
+        "-Kq-Tz6KoT_RyM7MF_qZ": true,
+        "-Kq-U7--b_XqZmhYoy3v": true
+    },
+    "links": [
+        {
+            "url": "plus.google.com",
+            "type": "google-plus"
+        },
+        {
+            "url": "facebook.com",
+            "type": "facebook"
+        },
+        {
+            "url": ""
+        }
+    ]
+}
+
+
 describe("An UrlCreator for single event", function () {
 
     var usedUrlsMock = [
@@ -8,40 +43,10 @@ describe("An UrlCreator for single event", function () {
         'ctvrtkon',
     ]
 
-    var event = {
-        "name": "A2 Workshop",
-        "subtitle": "Přijď si A2 vyzkoušet v praxi!",
-        "isMultipleEvent": false,
-        "dates": {
-            "start": "2017-09-03T16:00:00.000Z",
-            "end": "2017-09-03T18:00:00.000Z"
-        },
-        "description": "...",
-        "venue": "Brno",
-        "chapters": [
-            "gdg-brno"
-        ],
-        "guarantee": "-Kq-U7--b_XqZmhYoy3v",
-        "organizers": {
-            "-Kq-Tz6KoT_RyM7MF_qZ": true,
-            "-Kq-U7--b_XqZmhYoy3v": true
-        },
-        "links": [
-            {
-                "url": "plus.google.com",
-                "type": "google-plus"
-            },
-            {
-                "url": "facebook.com",
-                "type": "facebook"
-            },
-            {
-                "url": ""
-            }
-        ]
-    }
+
 
     it("creates url as event name without diacritics and spaces will be replaced by dash", function () {
+        event.isMultipleEvent = false
         let NameAndUrl = function (name, url) {
             this.name = name
             this.url = url
@@ -52,6 +57,7 @@ describe("An UrlCreator for single event", function () {
             new NameAndUrl('GDG Garage Žďár', 'gdg-garage-zdar'),
             new NameAndUrl('Čtvrtkon', 'ctvrtkon'),
             new NameAndUrl('3D tisk', '3d-tisk'),
+            new NameAndUrl('3D tisk # 1', '3d-tisk-1'),
             new NameAndUrl('ČSOB Hackathon', 'csob-hackathon')
         ];
 
@@ -65,6 +71,7 @@ describe("An UrlCreator for single event", function () {
     });
 
     it("creates unique url, in case of problem it add city name to url", function () {
+        event.isMultipleEvent = false
         let NameCityAndUrl = function (name, city, url) {
             this.name = name
             this.city = city
@@ -89,6 +96,7 @@ describe("An UrlCreator for single event", function () {
     });
 
     it("creates unique url, in case of problem with added city it adds number to url", function () {
+        event.isMultipleEvent = false
         let NameCityAndUrl = function (name, city, url) {
             this.name = name
             this.city = city
@@ -125,3 +133,34 @@ describe("An UrlCreator for single event", function () {
 
 
 });
+
+describe("An UrlCreator for multiple event", function () {
+
+    it("unify numbering before creating url", function () {
+        event.isMultipleEvent = true
+        let NameAndUrl = function (name, url) {
+            this.name = name
+            this.url = url
+        };
+
+        let namesAndUrls = [
+            new NameAndUrl('3D tisk 1', '3d-tisk-1'),
+            new NameAndUrl('3D tisk # 1', '3d-tisk-1'),
+            new NameAndUrl('3D tisk #1', '3d-tisk-1'),
+            new NameAndUrl('3D tisk Vol.1', '3d-tisk-1'),
+            new NameAndUrl('3D tisk vol.1', '3d-tisk-1'),
+            new NameAndUrl('3D tisk Vol. 1', '3d-tisk-1'),
+            new NameAndUrl('3D tisk vol. 1', '3d-tisk-1')
+        ];
+
+        let testNameToUrl = function (nameAndUrl) {
+            event.name = nameAndUrl.name
+            var urlCreator = new UrlCreator(event, [])
+            expect(urlCreator.getUrl()).toBe(nameAndUrl.url)
+        }
+
+        namesAndUrls.forEach(testNameToUrl);
+    })
+});
+
+

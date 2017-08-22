@@ -53,7 +53,12 @@ exports.UrlCreator = function (event, usedUrls) {
     }
 
     function getUrlForMultipleEvent() {
-        return ''
+        if (event.name.toLowerCase().includes('vol.')) {
+            event.name = event.name.replace('vol.', '#')
+            event.name = event.name.replace('Vol.', '#')
+        }
+
+        return getUrlForSingleEvent()
     }
 
     function getUrlForSingleEvent() {
@@ -102,5 +107,7 @@ exports.UrlCreator = function (event, usedUrls) {
     function addCityToUrl(url, city) {
         return url + '-' + removeDiacritics(city).toLowerCase()
     }
+
+
 
 }
