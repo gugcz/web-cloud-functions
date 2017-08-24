@@ -3,9 +3,7 @@ const organizerModule = require('./organizer')
 const chapterModule = require('./chapter')
 const eventModule = require('./event')
 
-const admin = require('firebase-admin');
-admin.initializeApp(functions.config().firebase);
-const database = admin.database()
+const database = require('./database').database
 
 // Organizers functions
 exports.getOrganizers = functions.https.onRequest((req, res) => {
@@ -21,9 +19,9 @@ exports.getChapters = functions.https.onRequest((req, res) => {
 });
 
 // Events functions
+// TODO POST function?
 exports.saveAndPublishEvent = functions.https.onRequest((req, res) => {
     let idToken;
-    console.log(req.get("authorization"))
     if (req.get("authorization")) {
         console.log('Found "Authorization" header');
         // Read the ID Token from the Authorization header.
@@ -34,7 +32,7 @@ exports.saveAndPublishEvent = functions.https.onRequest((req, res) => {
     admin.auth().verifyIdToken(idToken).then(decodedIdToken => {
         console.log('ID Token correctly decoded', decodedIdToken);
         req.user = decodedIdToken;
-        eventModule.saveAndPublishEvent(req, res, database);
+        eventModule.saveAndPublishEvent(req.body.eventData).then(resp.send('Event saved'));
     }).catch(error => {
         console.error('Error while verifying Firebase ID token:', error);
         res.status(403).send('Unauthorized');
@@ -42,3 +40,42 @@ exports.saveAndPublishEvent = functions.https.onRequest((req, res) => {
 
 
 });
+
+exports.saveEvent = functions.https.onRequest(((req, resp) => {
+    // TODO Add authentication and authorization
+    if (req.body.eventData) {
+        eventModule.saveEvent(req.body.eventData).then(resp.send('Event saved'))
+    }
+    else {
+        resp.sendStatus(404)
+    }
+}))
+exports.publishEvent = functions.https.onRequest(((req, resp) => {
+    // TODO Add authentication and authorization
+    if (req.query.id) {
+        eventModule.publishEvent(req.query.id).then(resp.send('Event published'))
+
+    }
+    else {
+        resp.sendStatus(404)
+    }
+}))
+
+exports.deleteEvent = functions.https.onRequest(((req, resp) => {
+    // TODO Add authentication and authorization
+    if (req.query.id) {
+        eventModule.deleteEvent(req.query.id).then(resp.send('Event deleted'))
+    }
+    else {
+        resp.sendStatus(404)
+    }
+}))
+exports.unpublishEvent = functions.https.onRequest(((req, resp) => {
+    // TODO Add authentication and authorization
+    if (req.query.id) {
+        eventModule.unpublishEvent(req.query.id).then(resp.send('Event unpublished'))
+    }
+    else {
+        resp.sendStatus(404)
+    }
+}))
