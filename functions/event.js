@@ -32,20 +32,15 @@ function publishTerm(term, parent) {
     eventRef.set(eventData)
 }
 
-function getPublicEventData(eventData) {
-    var usedUrls = getUsedUrls()
-    usedUrls.then(function (usedURlsArray) {
-
-    })
-    let urlCreator = new exports.UrlCreator(eventData, []);
-    var venueInfo = getVenueInfo('gdg-brno/0')
+function getPublicEventData(eventData, usedUrls) {
+    let urlCreator = new exports.UrlCreator(eventData, usedUrls);
     return {
         name: eventData.name,
         url: urlCreator.getUrl(),
         subtitle: eventData.subtitle,
         dates: eventData.dates,
         description: eventData.description,
-        venue: venueInfo, // TODO
+        venue: eventData.venue, // TODO
         chapters: eventData.chapters,
         organizers: eventData.organizers,
         links: eventData.links
@@ -58,18 +53,27 @@ exports.saveEvent = function(eventData) {
     return eventRef.set(eventData)
 }
 
-exports.removeEvent = function(eventId) {
+exports.deleteEvent = function(eventId) {
     let eventRef = database.ref('events/' + eventId);
     return eventRef.remove()
 }
 
 exports.publishEvent = function(eventId) {
-    let publishedEventRef = database.ref('publishedEvents').push();
-    let publicEventDataPromise = getEventData(eventId).then(eventDataSnapshot => getPublicEventData(eventDataSnapshot.val()))
-    database.ref('events/' + eventId + '/publishedEventId').set(publishedEventRef.key)
-    return publicEventDataPromise.then(function (publicEventData) {
-        console.log('Event data', publicEventData)
-        return publishedEventRef.set(publicEventData)
+    var urlsPromise = getUsedUrls();
+    var eventDataPromise = getEventData(eventId)
+
+    return Promise.all([urlsPromise, eventDataPromise]).then(results => {
+        var eventData = results[1].val()
+        return getVenueInfo(eventData.venue).then(venueSnapshot => {
+            eventData.venue = venueSnapshot.val()
+            console.log(eventData.venue, venueSnapshot.val())
+            var publicData = getPublicEventData(eventData, results[0])
+            let publishedEventRef = database.ref('publishedEvents').push();
+            database.ref('events/' + eventId + '/publishedEventId').set(publishedEventRef.key)
+
+            return publishedEventRef.set(publicData)
+        })
+
     })
 }
 
@@ -82,22 +86,15 @@ function getEventData(eventId) {
 
 exports.unpublishEvent = function(eventId) {
     // TODO - Refactor
-    return getPublishedEventId(eventId).then(id => database.ref('publishedEvents/' + id.val()).remove().then(() => database.ref('events/' + eventId + '/publishedEventId').remove()))
+    return getPublishedEventId(eventId).then(idSnapshot => database.ref('publishedEvents/' + idSnapshot.val()).remove().then(() => database.ref('events/' + eventId + '/publishedEventId').remove()))
 }
 
 function getVenueInfo(venueId) {
-    //return database.ref('chapterVenues' + venueId).once('value');
-    return {
-        name: 'VŠPJ',
-        address: 'Tolstého 5',
-        howTo: 'Zahni doleva',
-        mapUrl: 'maps.google.com'
-    }
+    return database.ref('chapterVenues/' + venueId).once('value');
 }
 
 function getUsedUrls() {
     return database.ref('publishedEvents').once('value').then(function (snapshot) {
-        console.log(snapshot.val())
         if (snapshot.val()) {
             return getUrlsFromSnapshot(snapshot)
         }
@@ -109,8 +106,8 @@ function getUsedUrls() {
 
 function getUrlsFromSnapshot(snapshot) {
     var usedUrls = []
-    snapshot.forEach(function(item) {
-        var itemVal = item.val().url;
+    snapshot.forEach(function(itemSnapshot) {
+        var itemVal = itemSnapshot.val().url;
         if (itemVal) {
             usedUrls.push(itemVal)
 
@@ -158,7 +155,7 @@ exports.UrlCreator = function (event, usedUrls) {
     function getUrlForSingleEvent() {
         var possibleUrl = removeSpacesAndSpecialChars(removeDiacritics(event.name).toLowerCase())
         if (urlHasDuplicates(possibleUrl)) {
-            return repairUrlForNoDuplicates(possibleUrl, event.venue)
+            return repairUrlForNoDuplicates(possibleUrl, event.venue.name)
         }
         return possibleUrl
     }
@@ -189,7 +186,6 @@ exports.UrlCreator = function (event, usedUrls) {
     }
 
     function urlHasDuplicates(possibleUrl) {
-        console.log(usedUrls)
         return usedUrls.indexOf(possibleUrl) !== -1
     }
 
