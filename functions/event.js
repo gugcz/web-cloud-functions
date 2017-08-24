@@ -74,15 +74,15 @@ exports.publishEvent = function(eventId) {
 }
 
 function getPublishedEventId(eventId) {
-    return getEventData(eventId).then(eventData => eventData.publishedEventId)
+    return database.ref('events/' + eventId + '/publishedEventId').once('value')
 }
 function getEventData(eventId) {
     return database.ref('events/' + eventId).once('value')
 }
 
 exports.unpublishEvent = function(eventId) {
-    database.ref('publishedEvents/' + getPublishedEventId(eventId)).remove();
-     return database.ref('events/' + eventId + '/publishedEventId').remove()
+    // TODO - Refactor
+    return getPublishedEventId(eventId).then(id => database.ref('publishedEvents/' + id.val()).remove().then(() => database.ref('events/' + eventId + '/publishedEventId').remove()))
 }
 
 function getVenueInfo(venueId) {
