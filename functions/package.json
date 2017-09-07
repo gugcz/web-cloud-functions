@@ -12,6 +12,7 @@
     "jasmine": "^2.7.0"
   },
   "scripts": {
+    "locally": "firebase serve --only functions",
     "test": "jasmine"
   }
 }

@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const organizerModule = require('./organizer')
 const chapterModule = require('./chapter')
+const sectionModule = require('./section')
 const eventModule = require('./event')
 
 const database = require('./database').database
@@ -16,6 +17,11 @@ exports.getChapter = functions.https.onRequest((req, res) => {
 });
 exports.getChapters = functions.https.onRequest((req, res) => {
     chapterModule.getChapters(req, res, database);
+});
+
+// Sections functions
+exports.getSections = functions.https.onRequest((req, res) => {
+    sectionModule.getSections(req, res, database);
 });
 
 // Events functions
