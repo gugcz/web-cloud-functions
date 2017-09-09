@@ -121,4 +121,22 @@ function pushEventToFirebase(event, publicEvent, database) {
     publishedEventRef.set(publicEvent)
 }
 
+exports.getPublishedEvent = function (request, response) {
+    let eventId = request.query.id;
+
+    if (!eventId) {
+        response.status(400).send("Event ID not found!");
+    }
+
+    let eventPromise = database.ref('publishedEvents').orderByChild('url').equalTo(eventId).once('value');
+
+    eventPromise.then(eventSnapshot => sendEventInfo(eventSnapshot));
+
+    function sendEventInfo(chapterSnapshot) {
+        let event = chapterSnapshot.val();
+
+        response.send(event)
+    }
+}
+
 

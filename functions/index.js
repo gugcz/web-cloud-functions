@@ -85,3 +85,7 @@ exports.unpublishEvent = functions.https.onRequest(((req, resp) => {
         resp.sendStatus(404)
     }
 }))
+
+exports.getPublishedEvent = functions.https.onRequest((req, res) => {
+    eventModule.getPublishedEvent(req, res);
+});
