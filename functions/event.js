@@ -121,6 +121,43 @@ function pushEventToFirebase(event, publicEvent, database) {
     publishedEventRef.set(publicEvent)
 }
 
+function isMultiDayEvent(dates) {
+    return false
+}
+
+function getDatesForSingleDayEvent(dates) {
+    return {
+        isMultiDay: false,
+        date: getDate(dates.start),
+        time: getTime(dates.start) + ' - ' + getTime(dates.end)
+    }
+}
+
+function getDate(date) {
+    console.log(date.toLocaleString())
+    return date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear()
+}
+
+function getTime(date) {
+    return removeSecondsFromeTimeString(date.toLocaleTimeString())
+}
+
+function removeSecondsFromeTimeString(time) {
+    return time.slice(0, 5)
+}
+
+
+function prepareDates(dates) {
+    dates.start = new Date(dates.start)
+    dates.end = new Date(dates.end)
+    if (isMultiDayEvent(dates)) {
+
+    }
+    else {
+        return getDatesForSingleDayEvent(dates)
+    }
+}
+
 exports.getPublishedEvent = function (request, response) {
     let eventId = request.query.id;
 
@@ -135,7 +172,9 @@ exports.getPublishedEvent = function (request, response) {
     function sendEventInfo(chapterSnapshot) {
         let event = getFirsItemInKeyValue(chapterSnapshot.val());
 
+        event.dates = prepareDates(event.dates);
 
+        console.log(event)
         var organizersIds = Object.keys(event.organizers).map(function(key) {
             if (event.organizers[key])
                 return key
