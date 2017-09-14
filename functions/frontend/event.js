@@ -31,7 +31,6 @@ exports.getEvent = function (request, response) {
     Promise.all([getOrganizersInfo(organizersIds), getChaptersInfo(chaptersIds)]).then(result => {
       event.organizers = result[0]
       event.chapters = result[1]
-      console.log(event)
       response.send(event)
     })
   }

@@ -1,4 +1,3 @@
-const eventModule = require('../frontend/event')
 const UrlCreator = require('../libs/url').UrlCreator
 
 var event = {

@@ -1,4 +1,7 @@
-exports.EventDateFormatter = function () {
+exports.EventDateFormatter = function (dates) {
+  dates.start = new Date(dates.start)
+  dates.end = new Date(dates.end)
+
   function isMultiDayEvent(dates) {
     return false
   }
@@ -20,7 +23,7 @@ exports.EventDateFormatter = function () {
     return date.toLocaleTimeString()
   }
 
-  this.getTime = function (dates) {
+  this.getTime = function () {
     if (isMultiDayEvent(dates)) {
       // TODO
     }
@@ -29,7 +32,7 @@ exports.EventDateFormatter = function () {
     }
   }
 
-  this.getDate = function (dates) {
+  this.getDate = function () {
     if (isMultiDayEvent(dates)) {
       // TODO
     }
@@ -38,7 +41,7 @@ exports.EventDateFormatter = function () {
     }
   }
 
-  this.getDates = function(dates) {
+  this.getDates = function() {
     dates.start = new Date(dates.start)
     dates.end = new Date(dates.end)
     if (isMultiDayEvent(dates)) {
