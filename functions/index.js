@@ -1,10 +1,13 @@
 const functions = require('firebase-functions');
-const organizerModule = require('./organizer')
-const chapterModule = require('./chapter')
-const sectionModule = require('./section')
-const eventModule = require('./event')
+const database = require('./libs/database').database
 
-const database = require('./database').database
+/**
+ * Frontend functions
+ */
+const frontendEventModule = require('./frontend/event')
+const organizerModule = require('./frontend/organizer')
+const chapterModule = require('./frontend/chapter')
+const sectionModule = require('./frontend/section')
 
 // Organizers functions
 exports.getOrganizers = functions.https.onRequest((req, res) => {
@@ -23,6 +26,17 @@ exports.getChapters = functions.https.onRequest((req, res) => {
 exports.getSections = functions.https.onRequest((req, res) => {
     sectionModule.getSections(req, res, database);
 });
+
+// Event functions
+exports.getEvent = functions.https.onRequest((req, res) => {
+  frontendEventModule.getEvent(req, res);
+});
+
+
+/**
+ * Admin functions
+ */
+const adminEventModule = require('./admin/event')
 
 // Events functions
 // TODO POST function?
@@ -50,7 +64,7 @@ exports.saveAndPublishEvent = functions.https.onRequest((req, res) => {
 exports.saveEvent = functions.https.onRequest(((req, resp) => {
     // TODO Add authentication and authorization
     if (req.body.eventData) {
-        eventModule.saveEvent(req.body.eventData).then(resp.send('Event saved'))
+        adminEventModule.saveEvent(req.body.eventData).then(resp.send('Event saved'))
     }
     else {
         resp.sendStatus(404)
@@ -59,7 +73,7 @@ exports.saveEvent = functions.https.onRequest(((req, resp) => {
 exports.publishEvent = functions.https.onRequest(((req, resp) => {
     // TODO Add authentication and authorization
     if (req.query.id) {
-        eventModule.publishEvent(req.query.id).then(resp.send('Event published'))
+        adminEventModule.publishEvent(req.query.id).then(resp.send('Event published'))
 
     }
     else {
@@ -70,7 +84,7 @@ exports.publishEvent = functions.https.onRequest(((req, resp) => {
 exports.deleteEvent = functions.https.onRequest(((req, resp) => {
     // TODO Add authentication and authorization
     if (req.query.id) {
-        eventModule.deleteEvent(req.query.id).then(resp.send('Event deleted'))
+        adminEventModule.deleteEvent(req.query.id).then(resp.send('Event deleted'))
     }
     else {
         resp.sendStatus(404)
@@ -79,13 +93,10 @@ exports.deleteEvent = functions.https.onRequest(((req, resp) => {
 exports.unpublishEvent = functions.https.onRequest(((req, resp) => {
     // TODO Add authentication and authorization
     if (req.query.id) {
-        eventModule.unpublishEvent(req.query.id).then(resp.send('Event unpublished'))
+        adminEventModule.unpublishEvent(req.query.id).then(resp.send('Event unpublished'))
     }
     else {
         resp.sendStatus(404)
     }
 }))
 
-exports.getPublishedEvent = functions.https.onRequest((req, res) => {
-    eventModule.getPublishedEvent(req, res);
-});
