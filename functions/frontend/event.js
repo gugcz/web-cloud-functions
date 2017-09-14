@@ -1,41 +1,5 @@
-
-
-const database = require('./database').database // TODO Mock for test
-const UrlCreator = require('./libs/url').UrlCreator
-
-function isMultiDayEvent(dates) {
-  return false
-}
-
-function getDatesForSingleDayEvent(dates) {
-  return {
-    isMultiDay: false,
-    date: getDate(dates.start),
-    time: getTime(dates.start) + ' - ' + getTime(dates.end)
-  }
-}
-
-function getDate(date) {
-  console.log(date.toLocaleString())
-  return date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear()
-}
-
-function getTime(date) {
-  return date.toLocaleTimeString()
-}
-
-
-
-function prepareDates(dates) {
-  dates.start = new Date(dates.start)
-  dates.end = new Date(dates.end)
-  if (isMultiDayEvent(dates)) {
-
-  }
-  else {
-    return getDatesForSingleDayEvent(dates)
-  }
-}
+const database = require('../libs/database').database // TODO Mock for test
+const EventDateFormatter = require('../libs/date').EventDateFormatter
 
 exports.getEvent = function (request, response) {
   let eventId = request.query.id;
@@ -51,7 +15,7 @@ exports.getEvent = function (request, response) {
   function sendEventInfo(chapterSnapshot) {
     let event = getFirsItemInKeyValue(chapterSnapshot.val());
 
-    event.dates = prepareDates(event.dates);
+    event.dates = new EventDateFormatter().getDates(event.dates);
 
     console.log(event)
     var organizersIds = Object.keys(event.organizers).map(function(key) {
