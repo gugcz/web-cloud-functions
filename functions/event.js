@@ -1,4 +1,4 @@
-const database = require('./database').database
+//const database = require('./database').database
 const UrlCreator = require('./url').UrlCreator
 
 // Expecting parent id in changed data
@@ -139,12 +139,9 @@ function getDate(date) {
 }
 
 function getTime(date) {
-    return removeSecondsFromeTimeString(date.toLocaleTimeString())
+    return date.toLocaleTimeString()
 }
 
-function removeSecondsFromeTimeString(time) {
-    return time.slice(0, 5)
-}
 
 
 function prepareDates(dates) {
