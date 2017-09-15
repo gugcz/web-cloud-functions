@@ -2,8 +2,10 @@ exports.EventDateFormatter = function (dates) {
   dates.start = new Date(dates.start)
   dates.end = new Date(dates.end)
 
+  var moment = require('moment')
+
   function isMultiDayEvent(dates) {
-    return false
+    return !moment(dates.start).isSame(dates.end, 'day');
   }
 
   function getDatesForSingleDayEvent(dates) {
@@ -15,18 +17,17 @@ exports.EventDateFormatter = function (dates) {
   }
 
   function getDate(date) {
-    console.log(date.toLocaleString())
     return date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear()
   }
 
   function getTime(date) {
-    var moment = require('moment')
+
     return moment(date).format('HH:mm')
   }
 
   this.getTime = function () {
     if (isMultiDayEvent(dates)) {
-      // TODO
+      // TODO is needed?
     }
     else {
       return getTimeForSingleDayEvent(dates)
@@ -35,10 +36,17 @@ exports.EventDateFormatter = function (dates) {
 
   this.getDate = function () {
     if (isMultiDayEvent(dates)) {
-      // TODO
+      // TODO Is needed?
     }
     else {
       return getDate(dates.start)
+    }
+  }
+
+  function getDatesForMultiDayEvent(dates) {
+    return {
+      isMultiDay: true,
+      datesAndTimes: getDate(dates.start) + " (" + getTime(dates.start) + ") - " + getDate(dates.end) + " (" + getTime(dates.end) + ")"
     }
   }
 
@@ -47,6 +55,7 @@ exports.EventDateFormatter = function (dates) {
     dates.end = new Date(dates.end)
     if (isMultiDayEvent(dates)) {
       // TODO
+      return getDatesForMultiDayEvent(dates)
     }
     else {
       return getDatesForSingleDayEvent(dates)

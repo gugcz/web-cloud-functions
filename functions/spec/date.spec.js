@@ -1,16 +1,17 @@
 const EventDateFormatter = require('../libs/date').EventDateFormatter
 
-var dates = {
-  start: "2017-09-03T16:00:00.000Z",
-  end: "2017-09-03T18:00:00.000Z"
-}
+var dates;
+var formatter;
+
+describe("A EventDateFormatter for single-day event", function () {
 
 
-describe("A EventDateFormatter for single event", function () {
-
-  var formatter;
 
   beforeEach(function() {
+    dates = {
+      start: "2017-09-03T16:00:00.000Z",
+      end: "2017-09-03T18:00:00.000Z"
+    }
     formatter = new EventDateFormatter(dates)
   });
 
@@ -28,6 +29,28 @@ describe("A EventDateFormatter for single event", function () {
       isMultiDay: false,
       date: "3.8.2017",
       time: "18:00 - 20:00"
+    }
+    expect(formatter.getDates()).toEqual(expectedDates)
+  })
+});
+
+describe("A EventDateFormatter for multiple-day event", function () {
+
+  var formatter;
+
+  beforeEach(function() {
+    dates = {
+      start: "2017-09-02T16:00:00.000Z",
+      end: "2017-09-03T18:00:00.000Z"
+    }
+    formatter = new EventDateFormatter(dates)
+  });
+
+
+  it("returns object with datesAndTimes property in format ", function () {
+    var expectedDates = {
+      isMultiDay: true,
+      datesAndTimes: "2.8.2017 (18:00) - 3.8.2017 (20:00)"
     }
     expect(formatter.getDates()).toEqual(expectedDates)
   })
