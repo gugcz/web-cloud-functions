@@ -8,8 +8,18 @@ var dates = {
 
 describe("A EventDateFormatter for single event", function () {
 
+  var formatter;
+
+  beforeEach(function() {
+    formatter = new EventDateFormatter(dates)
+  });
+
+
   it("transform date string to string in format DD.MM.YYYY", function () {
-    var formatter = new EventDateFormatter(dates)
     expect(formatter.getDate()).toBe("3.8.2017")
+  })
+
+  it("transform date string to time range string in format HH:MM - HH:MM", function () {
+    expect(formatter.getTime()).toBe("18:00 - 20:00")
   })
 });

@@ -20,7 +20,8 @@ exports.EventDateFormatter = function (dates) {
   }
 
   function getTime(date) {
-    return date.toLocaleTimeString()
+    var moment = require('moment')
+    return moment(date).format('HH:mm')
   }
 
   this.getTime = function () {
