@@ -22,4 +22,13 @@ describe("A EventDateFormatter for single event", function () {
   it("transform date string to time range string in format HH:MM - HH:MM", function () {
     expect(formatter.getTime()).toBe("18:00 - 20:00")
   })
+
+  it("returns object with time and date property", function () {
+    var expectedDates = {
+      isMultiDay: false,
+      date: "3.8.2017",
+      time: "18:00 - 20:00"
+    }
+    expect(formatter.getDates()).toEqual(expectedDates)
+  })
 });
