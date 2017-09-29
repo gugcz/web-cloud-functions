@@ -15,7 +15,7 @@ exports.getEvent = function (request, response) {
   function sendEventInfo(chapterSnapshot) {
     let event = getFirsItemInKeyValue(chapterSnapshot.val());
 
-    event.dates = new EventDateFormatter().getDates(event.dates);
+    event.dates = new EventDateFormatter(event.dates).getDates();
 
     console.log(event)
     var organizersIds = Object.keys(event.organizers).map(function(key) {

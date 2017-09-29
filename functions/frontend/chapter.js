@@ -43,10 +43,17 @@ exports.getChapters = function(request, response, database) {
         });
 
         var filteredChaptersArray = chaptersArray.map(function filterChaptersArray(chapter) {
-            return {
+            if (chapter.images) {
+              return {
                 id: chapter.id,
                 name: chapter.name,
                 logo: chapter.images.header
+              }
+            }
+
+            return {
+                id: chapter.id,
+                name: chapter.name
             }
         })
 
