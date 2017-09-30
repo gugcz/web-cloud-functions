@@ -36,6 +36,47 @@ exports.getEvent = function (request, response) {
   }
 }
 
+exports.getPastSixEvents = function (request, response) {
+
+  let chapterId = request.query.chapter;
+  if (!chapterId) {
+    response.status(400).send("Chapter ID not found!");
+  }
+
+  let eventPromise = database.ref('events').orderByChild('chapters/' + chapterId).equalTo(true).once('value')
+
+  eventPromise.then(function (eventsSnapshot) {
+
+    let eventsArray = getArrayFromKeyValue(eventsSnapshot.val())
+    response.send(sortEventsByDate(eventsArray).map(lastSixEventsMap).slice(0, 6))
+  })
+}
+
+function lastSixEventsMap(event) {
+
+  if (event.cover) {
+    return {
+      name: event.name,
+      cover: event.cover,
+      subtitle: event.subtitle,
+      urlId: event.urlId
+    }
+  }
+  return {
+    name: event.name,
+    subtitle: event.subtitle,
+    urlId: event.urlId
+  }
+}
+
+function sortEventsByDate(events) {
+  return events.sort(function(a,b){
+    // Turn your strings into dates, and then subtract them
+    // to get a value that is either negative, positive, or zero.
+    return new Date(b.dates.start) - new Date(a.dates.start);
+  });
+}
+
 function getOrganizersInfo(organizersIds) {
   var promises = organizersIds.map(function (id) {
     return database.ref('organizers/' + id).once('value');
@@ -72,10 +113,14 @@ function getChaptersInfo(chaptersIds) {
 }
 
 
-function getFirsItemInKeyValue(keyValue) {
-  return Object.keys(keyValue).map(function(key) {
+function getArrayFromKeyValue(keyValue) {
+  return Object.keys(keyValue).map(function (key) {
     return keyValue[key];
-  })[0]
+  });
+}
+
+function getFirsItemInKeyValue(keyValue) {
+  return getArrayFromKeyValue(keyValue)[0]
 }
 
 

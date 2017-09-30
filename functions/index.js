@@ -32,6 +32,10 @@ exports.getEvent = functions.https.onRequest((req, res) => {
   frontendEventModule.getEvent(req, res);
 });
 
+exports.getPastSixEvents = functions.https.onRequest((req, res) => {
+  frontendEventModule.getPastSixEvents(req, res);
+});
+
 
 /**
  * Admin functions
