@@ -1,11 +1,12 @@
 const EventDateFormatter = require('../libs/date').EventDateFormatter
+const EventDateComparator = require('../libs/date').EventDateComparator
 
 var dates;
-var formatter;
+
 
 describe("A EventDateFormatter for single-day event", function () {
 
-
+  var formatter;
 
   beforeEach(function() {
     dates = {
@@ -55,3 +56,37 @@ describe("A EventDateFormatter for multiple-day event", function () {
     expect(formatter.getDates()).toEqual(expectedDates)
   })
 });
+
+describe("A EventDateComparator -", function () {
+
+  var comparator = new EventDateComparator()
+
+  describe("isPastEvent", function () {
+    it("compares event date and return true for past event", function () {
+      var event = {
+        dates: {
+          start: '2017-09-02T16:00:00.000Z'
+        }
+      }
+      expect(comparator.isPastEvent(event)).toEqual(true)
+    })
+
+    it("compares event date and return false for future event", function () {
+      var event = {
+        dates: {
+          start: new Date().setYear(new Date().getYear() + 1) // Event date is next year
+        }
+      }
+      expect(comparator.isPastEvent(event)).toEqual(true)
+    })
+
+
+  })
+
+
+
+
+
+
+});
+

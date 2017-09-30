@@ -1,8 +1,8 @@
+const moment = require('moment');
 exports.EventDateFormatter = function (dates) {
   dates.start = new Date(dates.start)
-  dates.end = new Date(dates.end)
 
-  var moment = require('moment')
+  dates.end = new Date(dates.end)
 
   function isMultiDayEvent(dates) {
     return !moment(dates.start).isSame(dates.end, 'day');
@@ -64,5 +64,11 @@ exports.EventDateFormatter = function (dates) {
 
   function getTimeForSingleDayEvent(dates) {
     return getTime(dates.start) + ' - ' + getTime(dates.end)
+  }
+}
+
+exports.EventDateComparator = function () {
+  this.isPastEvent = function (event) {
+    return moment(event.dates.start).isBefore()
   }
 }

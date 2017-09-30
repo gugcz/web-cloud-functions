@@ -1,5 +1,6 @@
 const database = require('../libs/database').database // TODO Mock for test
 const EventDateFormatter = require('../libs/date').EventDateFormatter
+const EventDateComparator = require('../libs/date').EventDateComparator
 
 exports.getEvent = function (request, response) {
   let eventId = request.query.id;
@@ -17,7 +18,6 @@ exports.getEvent = function (request, response) {
 
     event.dates = new EventDateFormatter(event.dates).getDates();
 
-    console.log(event)
     var organizersIds = Object.keys(event.organizers).map(function(key) {
       if (event.organizers[key])
         return key
@@ -47,12 +47,13 @@ exports.getPastSixEvents = function (request, response) {
 
   eventPromise.then(function (eventsSnapshot) {
 
-    let eventsArray = getArrayFromKeyValue(eventsSnapshot.val())
-    response.send(sortEventsByDate(eventsArray).map(lastSixEventsMap).slice(0, 6))
+    let dateComparator =  new EventDateComparator()
+    let pastEventsArray = getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isPastEvent)
+    response.send(sortEventsByDate(pastEventsArray).map(eventCardMap).slice(0, 6))
   })
 }
 
-function lastSixEventsMap(event) {
+function eventCardMap(event) {
 
   if (event.cover) {
     return {
