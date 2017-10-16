@@ -1,3 +1,5 @@
+var firebaseArray = require('../libs/firebase-array')
+
 exports.getOrganizers = function(request, response, database) {
     var organizersPromise;
     let chapter = request.query.chapter;
@@ -17,9 +19,10 @@ exports.getOrganizers = function(request, response, database) {
     function sendOrganizerListWithName(organizerListSnapshot) {
         var organizers = organizerListSnapshot.val()
 
-        var organizersArray = Object.keys(organizers).map(function (k) {
-            return organizers[k]
-        });
+        if (!organizers) {
+          response.send([])
+        }
+        var organizersArray = firebaseArray.getArrayFromKeyValue(organizers)
 
         // TODO - Remove inactive
         var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(function filterOrganizerArray(organizer) {
