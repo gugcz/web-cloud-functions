@@ -27,6 +27,10 @@ exports.getSections = functions.https.onRequest((req, res) => {
     sectionModule.getSections(req, res, database);
 });
 
+exports.getSection = functions.https.onRequest((req, res) => {
+    sectionModule.getSection(req, res, database);
+});
+
 // Event functions
 exports.getEvent = functions.https.onRequest((req, res) => {
   frontendEventModule.getEvent(req, res);
