@@ -5,52 +5,89 @@ const EventDateComparator = require('../libs/date').EventDateComparator
 exports.getEvent = function (request, response) {
   let eventId = request.query.id;
 
+  console.log(response.req)
   if (!eventId) {
     response.status(400).send("Event ID not found!");
   }
 
-  let eventPromise = database.ref('publishedEvents').orderByChild('url').equalTo(eventId).once('value');
+  let eventPromise = database.ref('events').orderByChild('urlId').equalTo(eventId).once('value');
 
-  eventPromise.then(eventSnapshot => sendEventInfo(eventSnapshot));
+  eventPromise.then(eventSnapshot => sendEventInfo(getFirsItemInKeyValue(eventSnapshot.val()), sendEvent));
 
-  function sendEventInfo(chapterSnapshot) {
-    let event = getFirsItemInKeyValue(chapterSnapshot.val());
-
-    event.dates = new EventDateFormatter(event.dates).getDates();
-
-    var organizersIds = Object.keys(event.organizers).map(function(key) {
-      if (event.organizers[key])
-        return key
-    })
-
-    var chaptersIds = Object.keys(event.chapters).map(function(key) {
-      if (event.chapters[key])
-        return key
-    })
-
-    Promise.all([getOrganizersInfo(organizersIds), getChaptersInfo(chaptersIds)]).then(result => {
-      event.organizers = result[0]
-      event.chapters = result[1]
-      response.send(event)
-    })
+  function sendEvent(event) {
+    response.send(event)
   }
+
+}
+
+// TODO Rename, refactor
+function sendEventInfo(event, callback, response) {
+
+  event.dates = new EventDateFormatter(event.dates).getDates();
+
+  var organizersIds = Object.keys(event.organizers).map(function(key) {
+    if (event.organizers[key])
+      return key
+  })
+
+  var chaptersIds = Object.keys(event.chapters).map(function(key) {
+    if (event.chapters[key])
+      return key
+  })
+
+  Promise.all([getOrganizersInfo(organizersIds), getChaptersInfo(chaptersIds)]).then(result => {
+    event.organizers = result[0]
+    event.chapters = result[1]
+
+    callback(event)
+  })
 }
 
 exports.getPastSixEvents = function (request, response) {
 
-  let chapterId = request.query.chapter;
-  if (!chapterId) {
-    response.status(400).send("Chapter ID not found!");
-  }
-
-  let eventPromise = database.ref('events').orderByChild('chapters/' + chapterId).equalTo(true).once('value')
-
-  eventPromise.then(function (eventsSnapshot) {
+  getChapterEventsPromise(request).then(function (eventsSnapshot) {
 
     let dateComparator =  new EventDateComparator()
     let pastEventsArray = getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isPastEvent)
     response.send(sortEventsByDate(pastEventsArray).map(eventCardMap).slice(0, 6))
   })
+}
+
+
+exports.getFutureEvents = function (request, response) {
+
+  getChapterEventsPromise(request).then(function (eventsSnapshot) {
+
+    let dateComparator =  new EventDateComparator()
+    let futureEventsArray = getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isFutureEvent)
+
+
+    if (futureEventsArray.length === 0) {
+      response.send([])
+    }
+    else {
+      sendEventInfo(futureEventsArray[0], sendConcatEventArray)
+    }
+
+
+    // TODO Better naming
+    function sendConcatEventArray(event) {
+      futureEventsArray = futureEventsArray.map(eventCardMap)
+      futureEventsArray[0] = event
+      response.send(futureEventsArray)
+    }
+  })
+}
+
+
+function getChapterEventsPromise(request) {
+  let chapterId = request.query.chapter;
+  if (!chapterId) {
+    response.status(400).send("Chapter ID not found!");
+  }
+
+  return database.ref('events').orderByChild('chapters/' + chapterId).equalTo(true).once('value')
+
 }
 
 function eventCardMap(event) {
@@ -84,7 +121,6 @@ function getOrganizersInfo(organizersIds) {
   })
 
   return Promise.all(promises).then(organizersInfo => {
-    console.log(organizersInfo[0].val())
     return organizersInfo.map(organizer => {
         return {
           name: organizer.val().name,
@@ -101,7 +137,6 @@ function getChaptersInfo(chaptersIds) {
   })
 
   return Promise.all(promises).then(chaptersInfo => {
-    console.log(chaptersInfo[0].val())
     return chaptersInfo.map(chapter => {
         return {
           name: chapter.val().name,
