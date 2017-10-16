@@ -1,6 +1,7 @@
 const database = require('../libs/database').database // TODO Mock for test
 const EventDateFormatter = require('../libs/date').EventDateFormatter
 const EventDateComparator = require('../libs/date').EventDateComparator
+const firebaseArray = require('../libs/firebase-array')
 
 exports.getEvent = function (request, response) {
   let eventId = request.query.id;
@@ -62,7 +63,7 @@ exports.getPastSixEvents = function (request, response) {
 
 
 function getPublishedEventArray(eventsSnapshot) {
-  return getArrayFromKeyValue(eventsSnapshot.val()).filter(isPublishedEvent);
+  return firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(isPublishedEvent);
 }
 
 exports.getFutureEvents = function (request, response) {
@@ -160,14 +161,10 @@ function getChaptersInfo(chaptersIds) {
 }
 
 
-function getArrayFromKeyValue(keyValue) {
-  return Object.keys(keyValue).map(function (key) {
-    return keyValue[key];
-  });
-}
+
 
 function getFirsItemInKeyValue(keyValue) {
-  return getArrayFromKeyValue(keyValue)[0]
+  return firebaseArray.getArrayFromKeyValue(keyValue)[0]
 }
 
 
