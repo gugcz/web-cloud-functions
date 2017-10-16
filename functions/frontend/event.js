@@ -144,7 +144,7 @@ function getChaptersInfo(chaptersIds) {
     return chaptersInfo.map(chapter => {
         return {
           name: chapter.val().name,
-          key: chapter.key,
+          urlId: chapter.key,
           logo: ""
         }
       }
