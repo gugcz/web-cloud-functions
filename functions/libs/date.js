@@ -68,7 +68,13 @@ exports.EventDateFormatter = function (dates) {
 }
 
 exports.EventDateComparator = function () {
+
   this.isPastEvent = function (event) {
     return moment(event.dates.start).isBefore()
   }
+
+  this.isFutureEvent = function (event) {
+    return moment(event.dates.start).isAfter()
+  }
+
 }

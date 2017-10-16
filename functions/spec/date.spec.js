@@ -74,10 +74,35 @@ describe("A EventDateComparator -", function () {
     it("compares event date and return false for future event", function () {
       var event = {
         dates: {
-          start: new Date().setYear(new Date().getYear() + 1) // Event date is next year
+
+          // TODO Generate date next year programmatically
+          start: '2018-09-02T16:00:00.000Z' // Event date is next year
         }
       }
-      expect(comparator.isPastEvent(event)).toEqual(true)
+      expect(comparator.isPastEvent(event)).toEqual(false)
+    })
+
+
+  })
+
+  describe("isFutureEvent", function () {
+    it("compares event date and return false for past event", function () {
+      var event = {
+        dates: {
+          start: '2017-09-02T16:00:00.000Z'
+        }
+      }
+      expect(comparator.isFutureEvent(event)).toEqual(false)
+    })
+
+    it("compares event date and return true for future event", function () {
+      var event = {
+        dates: {
+          // TODO Generate date next year programmatically
+          start: '2018-09-02T16:00:00.000Z' // Event date is next year
+        }
+      }
+      expect(comparator.isFutureEvent(event)).toEqual(true)
     })
 
 
