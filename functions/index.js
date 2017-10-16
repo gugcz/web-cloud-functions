@@ -40,23 +40,6 @@ exports.getFutureEvents = functions.https.onRequest((req, res) => {
   frontendEventModule.getFutureEvents(req, res);
 });
 
-exports.testFunction = functions.https.onRequest((req, res) => {
-
-  database.ref('events').once('value').then(function (events) {
-    console.log(events.numChildren())
-    var promises = [];
-    var i = 1
-    events.forEach(function (event) {
-      console.log(i++, event.key)
-
-      if (event.val() !== undefined && event.val() !== null && event.key !== undefined && event.key !== null)
-        promises.push(firestore.collection('events').doc(event.key).set(event.val()))
-    })
-    var p = Promise.all(promises).then(res.send('ok'))
-    console.log(p)
-  })
-})
-
 
 /**
  * Admin functions

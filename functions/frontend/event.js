@@ -43,23 +43,34 @@ function sendEventInfo(event, callback, response) {
   })
 }
 
+function isPublishedEvent(event) {
+  return event.published
+}
+
 exports.getPastSixEvents = function (request, response) {
 
   getChapterEventsPromise(request).then(function (eventsSnapshot) {
 
+    if (eventsSnapshot.numChildren() === 0) {
+      response.send([])
+    }
     let dateComparator =  new EventDateComparator()
-    let pastEventsArray = getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isPastEvent)
+    let pastEventsArray = getPublishedEventArray(eventsSnapshot).filter(dateComparator.isPastEvent)
     response.send(sortEventsByDate(pastEventsArray).map(eventCardMap).slice(0, 6))
   })
 }
 
+
+function getPublishedEventArray(eventsSnapshot) {
+  return getArrayFromKeyValue(eventsSnapshot.val()).filter(isPublishedEvent);
+}
 
 exports.getFutureEvents = function (request, response) {
 
   getChapterEventsPromise(request).then(function (eventsSnapshot) {
 
     let dateComparator =  new EventDateComparator()
-    let futureEventsArray = getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isFutureEvent)
+    let futureEventsArray = getPublishedEventArray(eventsSnapshot).filter(dateComparator.isFutureEvent)
 
 
     if (futureEventsArray.length === 0) {
