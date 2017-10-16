@@ -6,7 +6,6 @@ const firebaseArray = require('../libs/firebase-array')
 exports.getEvent = function (request, response) {
   let eventId = request.query.id;
 
-  console.log(response.req)
   if (!eventId) {
     response.status(400).send("Event ID not found!");
   }
@@ -26,15 +25,8 @@ function sendEventInfo(event, callback, response) {
 
   event.dates = new EventDateFormatter(event.dates).getDates();
 
-  var organizersIds = Object.keys(event.organizers).map(function(key) {
-    if (event.organizers[key])
-      return key
-  })
-
-  var chaptersIds = Object.keys(event.chapters).map(function(key) {
-    if (event.chapters[key])
-      return key
-  })
+  var organizersIds = firebaseArray.getArrayFromIdList(event.organizers)
+  var chaptersIds = firebaseArray.getArrayFromIdList(event.chapters)
 
   Promise.all([getOrganizersInfo(organizersIds), getChaptersInfo(chaptersIds)]).then(result => {
     event.organizers = result[0]

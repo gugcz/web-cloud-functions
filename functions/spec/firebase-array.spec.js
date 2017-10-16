@@ -12,4 +12,25 @@ describe("Firebase array", function () {
 
 
   });
+
+  describe("function getArrayFromIdList", function () {
+
+
+    it("returns array of IDs", function () {
+      var idList = {'gdg-brno': true, 'gdg-jihlava': true}
+      expect(firebaseArray.getArrayFromIdList(idList)).toEqual(['gdg-brno', 'gdg-jihlava'])
+    })
+
+    it("remove 'id: false' items", function () {
+      var idList = {'gdg-brno': true, 'gdg-jihlava': false}
+      expect(firebaseArray.getArrayFromIdList(idList)).toEqual(['gdg-brno'])
+    })
+
+    it("skip strange items", function () {
+      var idList = {'gdg-brno': true, 'a2-workshop': {name: 'A2 Workshop'}}
+      expect(firebaseArray.getArrayFromIdList(idList)).toEqual(['gdg-brno'])
+    })
+
+
+  });
 });
