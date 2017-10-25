@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const database = require('./libs/database').database
+const storage = require('./libs/database').storage
 const firestore = require('./libs/database').firestore
 /**
  * Frontend functions
@@ -8,6 +9,16 @@ const frontendEventModule = require('./frontend/event')
 const organizerModule = require('./frontend/organizer')
 const chapterModule = require('./frontend/chapter')
 const sectionModule = require('./frontend/section')
+
+/*exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
+  database.ref('chapters').once('value').then(chapters => {
+    chapters.forEach(chapter => {
+      database.ref('chapters/' + chapter.key + '/logo').set('https://storage.googleapis.com/gug-web.appspot.com/logos/chapter/' + chapter.key + '.png')
+    })
+    resp.send('OK')
+  })
+}))*/
+
 
 // Organizers functions
 exports.getOrganizers = functions.https.onRequest((req, res) => {

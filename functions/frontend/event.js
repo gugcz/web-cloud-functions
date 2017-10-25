@@ -135,6 +135,7 @@ function getOrganizersInfo(organizersIds) {
   })
 }
 
+// TODO Use chapter module
 function getChaptersInfo(chaptersIds) {
   var promises = chaptersIds.map(function (id) {
     return database.ref('chapters/' + id).once('value');
@@ -145,7 +146,7 @@ function getChaptersInfo(chaptersIds) {
         return {
           name: chapter.val().name,
           urlId: chapter.key,
-          logo: ""
+          logo: chapter.val().logo
         }
       }
     )

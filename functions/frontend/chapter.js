@@ -1,29 +1,29 @@
-exports.getChapter = function(request, response, database) {
-    let chapterId = request.query.id;
+exports.getChapter = function (request, response, database) {
+  let chapterId = request.query.id;
 
-    if (!chapterId) {
-        response.status(400).send("Chapter ID not found!");
-    }
+  if (!chapterId) {
+    response.status(400).send("Chapter ID not found!");
+  }
 
-    let chapterPromise = database.ref('chapters/' + chapterId).once('value');
+  let chapterPromise = database.ref('chapters/' + chapterId).once('value');
 
-    chapterPromise.then(chapterSnapshot => sendChapterInfo(chapterSnapshot));
+  chapterPromise.then(chapterSnapshot => sendChapterInfo(chapterSnapshot));
 
-    function sendChapterInfo(chapterSnapshot) {
-        let chapter = chapterSnapshot.val();
+  function sendChapterInfo(chapterSnapshot) {
+    let chapter = chapterSnapshot.val();
 
-        response.send({
-            name: chapter.name,
-            section: chapter.section,
-            description: chapter.description,
-            email: chapter.email,
-            links: chapter.links
-        })
-    }
+    response.send({
+      name: chapter.name,
+      section: chapter.section,
+      description: chapter.description,
+      email: chapter.email,
+      links: chapter.links
+    })
+  }
 }
 
-exports.getChapters = function(request, response, database) {
-    let section = request.query.section;
+exports.getChapters = function (request, response, database) {
+  let section = request.query.section;
 
     if (!section) {
         response.status(400).send("Section not found!");
@@ -43,11 +43,11 @@ exports.getChapters = function(request, response, database) {
         });
 
         var filteredChaptersArray = chaptersArray.map(function filterChaptersArray(chapter) {
-            if (chapter.images) {
+            if (chapter.logo) {
               return {
                 id: chapter.id,
                 name: chapter.name,
-                logo: chapter.images.header
+                logo: chapter.logo
               }
             }
 
@@ -60,3 +60,4 @@ exports.getChapters = function(request, response, database) {
         response.send(filteredChaptersArray)
     }
 }
+
