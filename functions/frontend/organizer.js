@@ -3,10 +3,14 @@ var firebaseArray = require('../libs/firebase-array')
 exports.getOrganizers = function(request, response, database) {
     var organizersPromise;
     let chapter = request.query.chapter;
+    let active = request.query.active;
     let organizersReference = database.ref('organizers');
 
     if (chapter) {
         organizersPromise = organizersReference.orderByChild('chapters/' + chapter).equalTo(true).once('value');
+    }
+    else if (active) {
+        organizersPromise = organizersReference.orderByChild('active').equalTo(active === 'true').once('value');
     }
     else {
         organizersPromise = organizersReference.once('value');
