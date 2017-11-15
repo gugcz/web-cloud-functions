@@ -3,6 +3,8 @@ const EventDateFormatter = require('../libs/date').EventDateFormatter
 const EventDateComparator = require('../libs/date').EventDateComparator
 const firebaseArray = require('../libs/firebase-array')
 
+const EVENTS_PATH = 'events';
+
 exports.getEvent = function (request, response) {
   let eventId = request.query.id;
 
@@ -10,7 +12,7 @@ exports.getEvent = function (request, response) {
     response.status(400).send("Event ID not found!");
   }
 
-  let eventPromise = database.ref('events').orderByChild('urlId').equalTo(eventId).once('value');
+  let eventPromise = database.ref(EVENTS_PATH).orderByChild('urlId').equalTo(eventId).once('value');
 
   eventPromise.then(eventSnapshot => sendEventInfo(getFirsItemInKeyValue(eventSnapshot.val()), sendEvent));
 
@@ -18,6 +20,12 @@ exports.getEvent = function (request, response) {
     response.send(event)
   }
 
+}
+
+exports.getUsedUrlIds = function (request, response) {
+  getEventsPromise().then(eventsSnapshot => {
+    response.send(firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).map(event => event.urlId))
+  })
 }
 
 // TODO Rename, refactor
@@ -41,8 +49,10 @@ function isPublishedEvent(event) {
 }
 
 exports.getPastSixEvents = function (request, response) {
+  let chapterId = request.query.chapter;
+  let sectionId = request.query.section;
 
-  getChapterEventsPromise(request).then(function (eventsSnapshot) {
+  getEventsPromise(chapterId, sectionId).then(function (eventsSnapshot) {
 
     if (eventsSnapshot.numChildren() === 0) {
       response.send([])
@@ -58,9 +68,26 @@ function getPublishedEventArray(eventsSnapshot) {
   return firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(isPublishedEvent);
 }
 
-exports.getFutureEvents = function (request, response) {
+function getEventsPromise(chapterId, eventRef, request, sectionId) {
 
-  getChapterEventsPromise(request).then(function (eventsSnapshot) {
+
+  eventRef = database.ref(EVENTS_PATH);
+
+  if (chapterId) {
+    eventRef = eventRef.orderByChild('chapters/' + chapterId).equalTo(true);
+  }
+  else if (sectionId) {
+    // TODO
+  }
+
+  return eventRef.once('value')
+}
+
+exports.getFutureEvents = function (request, response) {
+  let chapterId = request.query.chapter;
+  let sectionId = request.query.section;
+
+  getEventsPromise(chapterId, sectionId).then(function (eventsSnapshot) {
 
     let dateComparator =  new EventDateComparator()
     let futureEventsArray = getPublishedEventArray(eventsSnapshot).filter(dateComparator.isFutureEvent)
@@ -83,16 +110,6 @@ exports.getFutureEvents = function (request, response) {
   })
 }
 
-
-function getChapterEventsPromise(request) {
-  let chapterId = request.query.chapter;
-  if (!chapterId) {
-    response.status(400).send("Chapter ID not found!");
-  }
-
-  return database.ref('events').orderByChild('chapters/' + chapterId).equalTo(true).once('value')
-
-}
 
 function eventCardMap(event) {
 
@@ -128,7 +145,7 @@ function getOrganizersInfo(organizersIds) {
     return organizersInfo.map(organizer => {
         return {
           name: organizer.val().name,
-          profilePicture: ""
+          profilePicture: organizer.val().profilePicture
         }
       }
     )

@@ -1,9 +1,11 @@
 var firebaseArray = require('../libs/firebase-array')
 
+// Do not use combination of query, e.g. active and profile picture
 exports.getOrganizers = function(request, response, database) {
     var organizersPromise;
     let chapter = request.query.chapter;
     let active = request.query.active;
+    let profilePicture = request.query.profilePicture;
     let organizersReference = database.ref('organizers');
 
     if (chapter) {
@@ -11,6 +13,9 @@ exports.getOrganizers = function(request, response, database) {
     }
     else if (active) {
         organizersPromise = organizersReference.orderByChild('active').equalTo(active === 'true').once('value');
+    }
+    else if (profilePicture) {
+        organizersPromise = organizersReference.orderByChild('profilePicture').startAt("").once('value');
     }
     else {
         organizersPromise = organizersReference.once('value');
