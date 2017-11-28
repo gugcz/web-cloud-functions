@@ -5,3 +5,6 @@ admin.initializeApp(functions.config().firebase);
 exports.database = admin.database()
 exports.storage = storage
 exports.firestore = admin.firestore()
+
+// Database paths and urls
+exports.publicStorageUrl = 'https://storage.googleapis.com/gug-web.appspot.com';

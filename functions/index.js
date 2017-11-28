@@ -2,6 +2,8 @@ const functions = require('firebase-functions');
 const database = require('./libs/database').database
 const storage = require('./libs/database').storage
 const firestore = require('./libs/database').firestore
+
+
 /**
  * Frontend functions
  */
@@ -85,9 +87,16 @@ exports.saveAndPublishEvent = functions.https.onRequest((req, res) => {
 });
 
 exports.saveEvent = functions.https.onRequest(((req, resp) => {
+
+  let eventData = {
+    name: req.body.name,
+    isMultipleEvent: req.body.isMultipleEvent
+  }
+
+  console.log(req.params('name'));
     // TODO Add authentication and authorization
-    if (req.body.eventData) {
-        adminEventModule.saveEvent(req.body.eventData).then(resp.send('Event saved'))
+  adminEventModule.saveEvent(eventData, req.body.cover).then(resp.send('Event saved'))
+  if (req.body.eventData) {
     }
     else {
         resp.sendStatus(404)
