@@ -35,6 +35,10 @@ exports.getChapters = functions.https.onRequest((req, res) => {
     chapterModule.getChapters(req, res, database);
 });
 
+exports.replaceNewLineCharsInChapterDescription = functions.database.ref('chapters/{chapterId}/description').onWrite(event => {
+  return event.data.ref.set(chapterModule.replaceNewLineCharsInDescription(event.data.val()))
+})
+
 // Sections functions
 exports.getSections = functions.https.onRequest((req, res) => {
     sectionModule.getSections(req, res, database);
@@ -88,19 +92,12 @@ exports.saveAndPublishEvent = functions.https.onRequest((req, res) => {
 
 exports.saveEvent = functions.https.onRequest(((req, resp) => {
 
-  let eventData = {
-    name: req.body.name,
-    isMultipleEvent: req.body.isMultipleEvent
-  }
+  console.log(req.body.eventData)
 
-  console.log(req.params('name'));
+  console.log("body", req.body);
     // TODO Add authentication and authorization
-  adminEventModule.saveEvent(eventData, req.body.cover).then(resp.send('Event saved'))
-  if (req.body.eventData) {
-    }
-    else {
-        resp.sendStatus(404)
-    }
+  //adminEventModule.saveEvent(eventData, req.body.cover).then(resp.send('Event saved'))
+  resp.send('OK')
 }))
 exports.publishEvent = functions.https.onRequest(((req, resp) => {
     // TODO Add authentication and authorization
