@@ -35,9 +35,6 @@ exports.getChapters = functions.https.onRequest((req, res) => {
     chapterModule.getChapters(req, res, database);
 });
 
-exports.replaceNewLineCharsInChapterDescription = functions.database.ref('chapters/{chapterId}/description').onWrite(event => {
-  return event.data.ref.set(chapterModule.replaceNewLineCharsInDescription(event.data.val()))
-})
 
 // Sections functions
 exports.getSections = functions.https.onRequest((req, res) => {

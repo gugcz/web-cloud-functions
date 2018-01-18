@@ -61,12 +61,5 @@ exports.getChapters = function (request, response, database) {
     }
 }
 
-exports.replaceNewLineCharsInDescription = function (description) {
-  String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-  };
 
-  return description.replaceAll('\n', '<br/>')
-}
 
