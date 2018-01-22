@@ -12,49 +12,8 @@ var marked = require('marked');
 
 exports.saveEvent = function(eventData, coverImage) {
 
-  // TODO - Remove OOP?
-  let urlCreator = new UrlCreator(eventData, getUsedUrls());
-  let eventUrlId = urlCreator.getUrl();
+  // TODO
 
-  let eventRef = database.ref('publishedEvents/' + eventUrlId).push({});
-
-  if (coverImage) {
-    let fileSuffix = file.getFileSuffix(coverImage.name);
-
-    let eventCoversBucket = storage.bucket('covers').bucket('event');
-
-    // TODO Extract path
-    return uploadFileToCloudStorage(eventCoversBucket, coverImage, fileSuffix, eventUrlId).then(() => {
-      eventData.cover = publicStorageUrl + '/logos/chapter/' + filename;
-      return eventRef.set(eventData)
-    });
-
-  }
-  // TODO Remove Else (not clean code practice) and return what?
-  else {
-    return eventRef.set(eventData);
-  }
-
-
-}
-
-function uploadFileToCloudStorage(bucket, file, fileSuffix, urlId) {
-  if(!file){
-    reject("no file to upload, please choose a file.");
-    return;
-  }
-  console.info("about to upload file as a json: " + file.type);
-  var filePath = file.path;
-
-  // TODO Extract to module and test it
-  var fileName = urlId + fileSuffix;
-
-
-  console.log('File path: ' + filePath);
-
-  return bucket.upload(filePath, {
-    destination: file.name, public: true
-  });
 }
 
 exports.deleteEvent = function(eventId) {
@@ -63,7 +22,20 @@ exports.deleteEvent = function(eventId) {
 }
 
 
-
+function copyEventData(eventData) {
+  return {
+    name: eventData.name,
+    subtitle: eventData.subtitle || '',
+    description: marked(eventData.description) || '',
+    datesFilter: {start: eventData.dates.start, end: eventData.dates.end},
+    dates: new EventDateFormatter(eventData.dates).getDates(),
+    venue: eventData.venue,
+    cover: eventData.cover || '',
+    regFormLink: eventData.regFormLink,
+    chaptersFilter: eventData.chapters,
+    links: eventData.links || []
+  };
+}
 
 exports.publishEvent = function(eventSnapshot) {
   let eventData = eventSnapshot.val()
@@ -79,16 +51,7 @@ exports.publishEvent = function(eventSnapshot) {
     var organizersIds = firebaseArray.getArrayFromIdList(eventData.organizers)
     var chaptersIds = firebaseArray.getArrayFromIdList(eventData.chapters)
 
-    let publishedEvent = {
-      name: eventData.name,
-      subtitle: eventData.subtitle,
-      description: marked(eventData.description),
-      dates: new EventDateFormatter(eventData.dates).getDates(),
-      venue: eventData.venue,
-      cover: eventData.cover || '',
-      regFormLink: eventData.regFormLink,
-      links: eventData.links
-    }
+    let publishedEvent = copyEventData(eventData)
 
 
 
@@ -99,6 +62,29 @@ exports.publishEvent = function(eventSnapshot) {
       return database.ref('publishedEvents/' + publishedEventUrl).set(publishedEvent);
     })
 
+  })
+
+
+
+}
+
+exports.updatePublishedEvent = function(eventSnapshot) {
+  let eventData = eventSnapshot.val()
+  let eventId = eventSnapshot.key
+  var publishedEventUrl = eventData.publishedEventId;
+
+  var organizersIds = firebaseArray.getArrayFromIdList(eventData.organizers)
+  var chaptersIds = firebaseArray.getArrayFromIdList(eventData.chapters)
+
+  let publishedEvent = copyEventData(eventData)
+
+
+
+  return Promise.all([getOrganizersInfo(organizersIds), getChaptersInfo(chaptersIds)]).then(result => {
+    publishedEvent.organizers = result[0]
+    publishedEvent.chapters = result[1]
+
+    return database.ref('publishedEvents/' + publishedEventUrl).set(publishedEvent);
   })
 
 
@@ -140,45 +126,17 @@ function getChaptersInfo(chaptersIds) {
 }
 
 
-function getPublishedEventId(eventId) {
-  return database.ref('events/' + eventId + '/publishedEventId').once('value')
-}
-function getEventData(eventId) {
-  return database.ref('events/' + eventId).once('value')
-}
-
 exports.unpublishEvent = function(eventSnapshot) {
   // TODO - Refactor
   let publishedEventId = eventSnapshot.val().publishedEventId
   let eventId = eventSnapshot.key
   return Promise.all([database.ref('publishedEvents/' + publishedEventId).remove(), database.ref('events/' + eventId + '/publishedEventId').remove()])
 }
-
-function getVenueInfo(venueId) {
-  return database.ref('chapterVenues/' + venueId).once('value');
+exports.deletePublishedEvent = function(eventSnapshot) {
+  // TODO - Refactor
+  let publishedEventId = eventSnapshot.val().publishedEventId
+  return database.ref('publishedEvents/' + publishedEventId).remove()
 }
 
-function getUsedUrls() {
-  return database.ref('events').once('value').then(function (snapshot) {
-    if (snapshot.val()) {
-      return getUrlsFromSnapshot(snapshot)
-    }
-    else {
-      return []
-    }
-  })
-}
-
-function getUrlsFromSnapshot(snapshot) {
-  var usedUrls = []
-  snapshot.forEach(function(itemSnapshot) {
-    var itemVal = itemSnapshot.val().urlId;
-    if (itemVal) {
-      usedUrls.push(itemVal)
-
-    }
-  });
-  return usedUrls
-}
 
 

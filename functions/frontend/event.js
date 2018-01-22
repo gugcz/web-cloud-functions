@@ -3,7 +3,7 @@ const EventDateFormatter = require('../libs/date').EventDateFormatter
 const EventDateComparator = require('../libs/date').EventDateComparator
 const firebaseArray = require('../libs/firebase-array')
 
-const EVENTS_PATH = 'events';
+const EVENTS_PATH = 'publishedEvents';
 
 exports.getEvent = function (request, response) {
   let eventId = request.query.id;
@@ -12,35 +12,12 @@ exports.getEvent = function (request, response) {
     response.status(400).send("Event ID not found!");
   }
 
-  let eventPromise = database.ref(EVENTS_PATH).orderByChild('urlId').equalTo(eventId).once('value');
+  let eventPromise = database.ref(EVENTS_PATH + '/' + eventId).once('value');
 
-  eventPromise.then(eventSnapshot => sendEventInfo(getFirsItemInKeyValue(eventSnapshot.val()), sendEvent));
-
-  function sendEvent(event) {
-    response.send(event)
-  }
+  eventPromise.then(eventSnapshot => response.send(eventSnapshot.val()));
 
 }
 
-// TODO Rename, refactor
-function sendEventInfo(event, callback, response) {
-
-  event.dates = new EventDateFormatter(event.dates).getDates();
-
-  var organizersIds = firebaseArray.getArrayFromIdList(event.organizers)
-  var chaptersIds = firebaseArray.getArrayFromIdList(event.chapters)
-
-  Promise.all([getOrganizersInfo(organizersIds), getChaptersInfo(chaptersIds)]).then(result => {
-    event.organizers = result[0]
-    event.chapters = result[1]
-
-    callback(event)
-  })
-}
-
-function isPublishedEvent(event) {
-  return event.published
-}
 
 exports.getPastSixEvents = function (request, response) {
   let chapterId = request.query.chapter;
@@ -52,15 +29,12 @@ exports.getPastSixEvents = function (request, response) {
       response.send([])
     }
     let dateComparator =  new EventDateComparator()
-    let pastEventsArray = getPublishedEventArray(eventsSnapshot).filter(dateComparator.isPastEvent)
+    let pastEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isPastEvent)
     response.send(sortEventsByDate(pastEventsArray).map(eventCardMap).slice(0, 6))
   })
 }
 
 
-function getPublishedEventArray(eventsSnapshot) {
-  return firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(isPublishedEvent);
-}
 
 function getEventsPromise(chapterId, eventRef, request, sectionId) {
 
@@ -68,7 +42,7 @@ function getEventsPromise(chapterId, eventRef, request, sectionId) {
   eventRef = database.ref(EVENTS_PATH);
 
   if (chapterId) {
-    eventRef = eventRef.orderByChild('chapters/' + chapterId).equalTo(true);
+    eventRef = eventRef.orderByChild('chaptersFilter/' + chapterId).equalTo(true);
   }
   else if (sectionId) {
     // TODO
@@ -84,22 +58,16 @@ exports.getFutureEvents = function (request, response) {
   getEventsPromise(chapterId, sectionId).then(function (eventsSnapshot) {
 
     let dateComparator =  new EventDateComparator()
-    let futureEventsArray = getPublishedEventArray(eventsSnapshot).filter(dateComparator.isFutureEvent)
+    let futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isFutureEvent)
 
 
     if (futureEventsArray.length === 0) {
       response.send([])
     }
     else {
-      sendEventInfo(futureEventsArray[0], sendConcatEventArray)
-    }
-
-
-    // TODO Better naming
-    function sendConcatEventArray(event) {
-      futureEventsArray = futureEventsArray.map(eventCardMap)
-      futureEventsArray[0] = event
-      response.send(futureEventsArray)
+      let sortedFutureEventsArray = futureEventsArray.sort((a, b) => {return new Date(a.datesFilter.start) - new Date(b.datesFilter.start)})
+      console.log(sortedFutureEventsArray)
+      response.send(sortedFutureEventsArray.slice(0, 1).concat(sortedFutureEventsArray.slice(1).map(eventCardMap)))
     }
   })
 }
@@ -107,65 +75,21 @@ exports.getFutureEvents = function (request, response) {
 
 function eventCardMap(event) {
 
-  if (event.cover) {
-    return {
-      name: event.name,
-      cover: event.cover,
-      subtitle: event.subtitle,
-      urlId: event.urlId
-    }
-  }
   return {
     name: event.name,
-    subtitle: event.subtitle,
+    cover: event.cover || '',
+    subtitle: event.subtitle || '',
     urlId: event.urlId
   }
 }
 
 function sortEventsByDate(events) {
   return events.sort(function(a,b){
-    // Turn your strings into dates, and then subtract them
+    // Turn your strings into datesFilter, and then subtract them
     // to get a value that is either negative, positive, or zero.
-    return new Date(b.dates.start) - new Date(a.dates.start);
+    return new Date(b.datesFilter.start) - new Date(a.datesFilter.start);
   });
 }
-
-function getOrganizersInfo(organizersIds) {
-  var promises = organizersIds.map(function (id) {
-    return database.ref('organizers/' + id).once('value');
-  })
-
-  return Promise.all(promises).then(organizersInfo => {
-    return organizersInfo.map(organizer => {
-        return {
-          name: organizer.val().name,
-          profilePicture: organizer.val().profilePicture
-        }
-      }
-    )
-  })
-}
-
-// TODO Use chapter module
-function getChaptersInfo(chaptersIds) {
-  var promises = chaptersIds.map(function (id) {
-    return database.ref('chapters/' + id).once('value');
-  })
-
-  return Promise.all(promises).then(chaptersInfo => {
-    return chaptersInfo.map(chapter => {
-        return {
-          name: chapter.val().name,
-          urlId: chapter.key,
-          logo: chapter.val().logo
-        }
-      }
-    )
-  })
-}
-
-
-
 
 function getFirsItemInKeyValue(keyValue) {
   return firebaseArray.getArrayFromKeyValue(keyValue)[0]

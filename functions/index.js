@@ -97,6 +97,22 @@ exports.saveEvent = functions.https.onRequest(((req, resp) => {
   resp.send('OK')
 }))
 
+function publishedEventWasUpdated(eventSnapshot) {
+  return eventSnapshot.val().published && eventSnapshot.val().publishedEventId;
+}
+
+function eventWasPublished(eventSnapshot) {
+  return eventSnapshot.val().published && !eventSnapshot.val().publishedEventId;
+}
+
+function publishedEventWasUnpublished(eventSnapshot) {
+  return !eventSnapshot.val().published && eventSnapshot.val().publishedEventId;
+}
+
+function eventWasDeleted(eventSnapshot) {
+  return !eventSnapshot.exists();
+}
+
 exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onWrite(writeEvent => {
 
 
@@ -104,15 +120,21 @@ exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onW
     let eventSnapshot = writeEvent.data
 
     if (eventSnapshot.child('published').changed()) {
-      if (eventSnapshot.val().published) {
-        console.log('Publishing event:', eventSnapshot.val().name);
+      if (eventWasDeleted(eventSnapshot)) {
+        return adminEventModule.deletePublishedEvent(eventSnapshot.previous)
+      } else if (eventWasPublished(eventSnapshot)) {
         return adminEventModule.publishEvent(eventSnapshot);
-      } else if (eventSnapshot.val().publishedEventId) {
-        console.log('Unpublishing event:', eventSnapshot.val().name);
-        return adminEventModule.unpublishEvent(eventSnapshot)
+      } else if (publishedEventWasUnpublished(eventSnapshot)) {
+        return adminEventModule.unpublishEvent(eventSnapshot);
+      } else if (publishedEventWasUpdated(eventSnapshot)) {
+        return adminEventModule.updatePublishedEvent(eventSnapshot)
       }
     }
-    return true;
+
+
+
+  return null;
+
 })
 
 exports.deleteEvent = functions.https.onRequest(((req, resp) => {
