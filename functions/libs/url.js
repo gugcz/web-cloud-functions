@@ -1,7 +1,7 @@
 exports.UrlCreator = function (event, usedUrls) {
 
     this.getUrl = function () {
-        if (event.isMultipleEvent) {
+        if (event.dates.isRepeatingEvent) {
             return getUrlForMultipleEvent()
         }
         else {
@@ -20,8 +20,9 @@ exports.UrlCreator = function (event, usedUrls) {
 
     function getUrlForSingleEvent() {
         var possibleUrl = removeSpacesAndSpecialChars(removeDiacritics(event.name).toLowerCase())
+        console.log('Checking URL duplicates', possibleUrl, usedUrls);
         if (urlHasDuplicates(possibleUrl)) {
-            return repairUrlForNoDuplicates(possibleUrl, event.venue.name)
+            return repairUrlForNoDuplicates(possibleUrl, event.venue.city)
         }
         return possibleUrl
     }

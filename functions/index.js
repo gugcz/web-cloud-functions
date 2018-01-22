@@ -96,16 +96,24 @@ exports.saveEvent = functions.https.onRequest(((req, resp) => {
   //adminEventModule.saveEvent(eventData, req.body.cover).then(resp.send('Event saved'))
   resp.send('OK')
 }))
-exports.publishEvent = functions.https.onRequest(((req, resp) => {
-    // TODO Add authentication and authorization
-    if (req.query.id) {
-        adminEventModule.publishEvent(req.query.id).then(resp.send('Event published'))
 
+exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onWrite(writeEvent => {
+
+
+
+    let eventSnapshot = writeEvent.data
+
+    if (eventSnapshot.child('published').changed()) {
+      if (eventSnapshot.val().published) {
+        console.log('Publishing event:', eventSnapshot.val().name);
+        return adminEventModule.publishEvent(eventSnapshot);
+      } else if (eventSnapshot.val().publishedEventId) {
+        console.log('Unpublishing event:', eventSnapshot.val().name);
+        return adminEventModule.unpublishEvent(eventSnapshot)
+      }
     }
-    else {
-        resp.sendStatus(404)
-    }
-}))
+    return true;
+})
 
 exports.deleteEvent = functions.https.onRequest(((req, resp) => {
     // TODO Add authentication and authorization

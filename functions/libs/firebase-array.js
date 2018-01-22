@@ -4,6 +4,7 @@ exports.getArrayFromKeyValue = function (keyValue) {
   });
 }
 
+
 exports.getArrayFromIdList = function (list) {
   return Object.keys(list).map(function(key) {
     if (list[key] === true) // Remove "id: false" items

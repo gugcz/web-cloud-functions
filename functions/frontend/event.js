@@ -22,12 +22,6 @@ exports.getEvent = function (request, response) {
 
 }
 
-exports.getUsedUrlIds = function (request, response) {
-  getEventsPromise().then(eventsSnapshot => {
-    response.send(firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).map(event => event.urlId))
-  })
-}
-
 // TODO Rename, refactor
 function sendEventInfo(event, callback, response) {
 

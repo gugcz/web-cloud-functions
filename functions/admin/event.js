@@ -2,24 +2,13 @@ const UrlCreator = require('../libs/url').UrlCreator;
 const storage = require('../libs/database').storage;
 const database = require('../libs/database').database;
 const publicStorageUrl = require('../libs/database').publicStorageUrl;
+
+const EventDateFormatter = require('../libs/date').EventDateFormatter
+const EventDateComparator = require('../libs/date').EventDateComparator
+const firebaseArray = require('../libs/firebase-array')
 const file = require('../libs/file');
+var marked = require('marked');
 
-
-function getPublicEventData(eventData, usedUrls) {
-  let urlCreator = new UrlCreator(eventData, usedUrls);
-  return {
-    name: eventData.name,
-    urlId: urlCreator.getUrl(),
-    subtitle: eventData.subtitle,
-    dates: eventData.dates,
-    description: eventData.description,
-    venue: eventData.venue, // TODO
-    chapters: eventData.chapters,
-    organizers: eventData.organizers,
-    links: eventData.links
-  }
-
-}
 
 exports.saveEvent = function(eventData, coverImage) {
 
@@ -73,23 +62,83 @@ exports.deleteEvent = function(eventId) {
   return eventRef.remove()
 }
 
-exports.publishEvent = function(eventId) {
-  var urlsPromise = getUsedUrls();
-  var eventDataPromise = getEventData(eventId)
 
-  return Promise.all([urlsPromise, eventDataPromise]).then(results => {
-    var eventData = results[1].val()
-    return getVenueInfo(eventData.venue).then(venueSnapshot => {
-      eventData.venue = venueSnapshot.val()
-      var publicData = getPublicEventData(eventData, results[0])
-      let publishedEventRef = database.ref('publishedEvents').push();
-      database.ref('events/' + eventId + '/publishedEventId').set(publishedEventRef.key)
 
-      return publishedEventRef.set(publicData)
+
+exports.publishEvent = function(eventSnapshot) {
+  let eventData = eventSnapshot.val()
+  let eventId = eventSnapshot.key
+  var usedUrls = []
+
+  return database.ref('publishedEvents').once('value').then(eventsSnapshot => {
+    if (eventsSnapshot.val() !== null) {
+      usedUrls = Object.keys(eventsSnapshot.val())
+    }
+
+    let publishedEventUrl = new UrlCreator(eventData, usedUrls).getUrl()
+    var organizersIds = firebaseArray.getArrayFromIdList(eventData.organizers)
+    var chaptersIds = firebaseArray.getArrayFromIdList(eventData.chapters)
+
+    let publishedEvent = {
+      name: eventData.name,
+      subtitle: eventData.subtitle,
+      description: marked(eventData.description),
+      dates: new EventDateFormatter(eventData.dates).getDates(),
+      venue: eventData.venue,
+      cover: eventData.cover || '',
+      regFormLink: eventData.regFormLink,
+      links: eventData.links
+    }
+
+
+
+    return Promise.all([getOrganizersInfo(organizersIds), getChaptersInfo(chaptersIds), database.ref('events/' + eventId + '/publishedEventId').set(publishedEventUrl)]).then(result => {
+      publishedEvent.organizers = result[0]
+      publishedEvent.chapters = result[1]
+
+      return database.ref('publishedEvents/' + publishedEventUrl).set(publishedEvent);
     })
 
   })
+
+
+
 }
+
+function getOrganizersInfo(organizersIds) {
+  var promises = organizersIds.map(function (id) {
+    return database.ref('organizers/' + id).once('value');
+  })
+
+  return Promise.all(promises).then(organizersInfo => {
+    return organizersInfo.map(organizer => {
+        return {
+          name: organizer.val().name,
+          profilePicture: organizer.val().profilePicture || ''
+        }
+      }
+    )
+  })
+}
+
+// TODO Use chapter module
+function getChaptersInfo(chaptersIds) {
+  var promises = chaptersIds.map(function (id) {
+    return database.ref('chapters/' + id).once('value');
+  })
+
+  return Promise.all(promises).then(chaptersInfo => {
+    return chaptersInfo.map(chapter => {
+        return {
+          name: chapter.val().name,
+          urlId: chapter.key,
+          logo: chapter.val().logo || ''
+        }
+      }
+    )
+  })
+}
+
 
 function getPublishedEventId(eventId) {
   return database.ref('events/' + eventId + '/publishedEventId').once('value')
@@ -98,9 +147,11 @@ function getEventData(eventId) {
   return database.ref('events/' + eventId).once('value')
 }
 
-exports.unpublishEvent = function(eventId) {
+exports.unpublishEvent = function(eventSnapshot) {
   // TODO - Refactor
-  return getPublishedEventId(eventId).then(idSnapshot => database.ref('publishedEvents/' + idSnapshot.val()).remove().then(() => database.ref('events/' + eventId + '/publishedEventId').remove()))
+  let publishedEventId = eventSnapshot.val().publishedEventId
+  let eventId = eventSnapshot.key
+  return Promise.all([database.ref('publishedEvents/' + publishedEventId).remove(), database.ref('events/' + eventId + '/publishedEventId').remove()])
 }
 
 function getVenueInfo(venueId) {
