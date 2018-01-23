@@ -121,6 +121,7 @@ exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onW
 
     if (eventSnapshot.child('published').changed()) {
       if (eventWasDeleted(eventSnapshot)) {
+        // Snapshot data are null
         return adminEventModule.deletePublishedEvent(eventSnapshot.previous)
       } else if (eventWasPublished(eventSnapshot)) {
         return adminEventModule.publishEvent(eventSnapshot);
