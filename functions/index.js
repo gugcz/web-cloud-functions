@@ -13,11 +13,9 @@ const chapterModule = require('./frontend/chapter')
 const sectionModule = require('./frontend/section')
 
 /*exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
-  database.ref('chapters').once('value').then(chapters => {
-    chapters.forEach(chapter => {
-      database.ref('chapters/' + chapter.key + '/logo').set('https://storage.googleapis.com/gug-web.appspot.com/logos/chapter/' + chapter.key + '.png')
-    })
-    resp.send('OK')
+  database.ref('publishedEvents').once('value').then(chapters => {
+
+    resp.send('Num of events: ' + chapters.numChildren())
   })
 }))*/
 

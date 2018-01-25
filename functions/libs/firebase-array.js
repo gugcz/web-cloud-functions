@@ -1,4 +1,5 @@
 exports.getArrayFromKeyValue = function (keyValue) {
+  keyValue = keyValue || {}
   return Object.keys(keyValue).map(function (key) {
     var keyValueObject = keyValue[key];
     keyValueObject.urlId = key

@@ -15,7 +15,7 @@ exports.getChapter = function (request, response, database) {
     response.send({
       name: chapter.name,
       section: chapter.section,
-      description: chapter.description,
+      description: chapter.description || '',
       email: chapter.email,
       links: chapter.links
     })
