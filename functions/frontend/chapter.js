@@ -16,6 +16,7 @@ exports.getChapter = function (request, response, database) {
       name: chapter.name,
       section: chapter.section,
       description: chapter.description || '',
+      cover: chapter.cover || '',
       email: chapter.email,
       links: chapter.links
     })

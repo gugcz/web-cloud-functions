@@ -2,6 +2,7 @@ const EventDateFormatter = require('./date').EventDateFormatter
 var marked = require('marked');
 
 exports.getEventDataInPublishFormat = function (eventData) {
+  console.log(eventData.dates)
   return {
     name: eventData.name,
     subtitle: eventData.subtitle || '',

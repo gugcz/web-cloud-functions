@@ -5,6 +5,7 @@ exports.EventDateFormatter = function (dates) {
   dates.end = new Date(dates.end)
 
   function isMultiDayEvent(dates) {
+    console.log(!moment(dates.start).isSame(dates.end, 'day'))
     return !moment(dates.start).isSame(dates.end, 'day');
   }
 
