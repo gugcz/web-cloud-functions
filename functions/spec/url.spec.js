@@ -3,7 +3,7 @@ const UrlCreator = require('../libs/url').UrlCreator
 var event = {
   "name": "A2 Workshop",
   "subtitle": "Přijď si A2 vyzkoušet v praxi!",
-  "isMultipleEvent": false,
+  "isRepeatingEvent": false,
   "dates": {
     "start": "2017-09-03T16:00:00.000Z",
     "end": "2017-09-03T18:00:00.000Z"
@@ -44,7 +44,7 @@ describe("An UrlCreator for single event", function () {
 
 
   it("creates url as event name without diacritics and spaces will be replaced by dash", function () {
-    event.isMultipleEvent = false
+    event.dates = {isRepeatingEvent: false}
     let NameAndUrl = function (name, url) {
       this.name = name
       this.url = url
@@ -69,10 +69,10 @@ describe("An UrlCreator for single event", function () {
   });
 
   it("creates unique url, in case of problem it add city name to url", function () {
-    event.isMultipleEvent = false
+    event.dates = {isRepeatingEvent: false}
     let NameCityAndUrl = function (name, city, url) {
       this.name = name
-      this.city = city
+      this.city = city.name
       this.url = url
     };
 
@@ -85,7 +85,7 @@ describe("An UrlCreator for single event", function () {
 
     let testNameToUrl = function (nameCityAndUrl) {
       event.name = nameCityAndUrl.name
-      event.venue = nameCityAndUrl.city
+      event.venue = {city: nameCityAndUrl.city}
       var urlCreator = new UrlCreator(event, usedUrlsMock)
       expect(urlCreator.getUrl()).toBe(nameCityAndUrl.url)
     }
@@ -94,10 +94,10 @@ describe("An UrlCreator for single event", function () {
   });
 
   it("creates unique url, in case of problem with added city it adds number to url", function () {
-    event.isMultipleEvent = false
+    event.dates = {isRepeatingEvent: false}
     let NameCityAndUrl = function (name, city, url) {
       this.name = name
-      this.city = city
+      this.city = city.name
       this.url = url
     };
 
@@ -121,7 +121,7 @@ describe("An UrlCreator for single event", function () {
 
     let testNameToUrl = function (nameCityAndUrl) {
       event.name = nameCityAndUrl.name
-      event.venue = nameCityAndUrl.city
+      event.venue = {city: nameCityAndUrl.city}
       var urlCreator = new UrlCreator(event, usedUrlsMock)
       expect(urlCreator.getUrl()).toBe(nameCityAndUrl.url)
     }
@@ -135,7 +135,7 @@ describe("An UrlCreator for single event", function () {
 describe("An UrlCreator for multiple event", function () {
 
   it("unify numbering before creating url and then creates url as in single event", function () {
-    event.isMultipleEvent = true
+    event.dates = {isRepeatingEvent: true}
     let NameAndUrl = function (name, url) {
       this.name = name
       this.url = url

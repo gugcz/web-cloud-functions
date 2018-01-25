@@ -20,7 +20,6 @@ exports.UrlCreator = function (event, usedUrls) {
 
     function getUrlForSingleEvent() {
         var possibleUrl = removeSpacesAndSpecialChars(removeDiacritics(event.name).toLowerCase())
-        console.log('Checking URL duplicates', possibleUrl, usedUrls);
         if (urlHasDuplicates(possibleUrl)) {
             return repairUrlForNoDuplicates(possibleUrl, event.venue.city)
         }

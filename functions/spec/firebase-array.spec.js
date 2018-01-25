@@ -7,7 +7,7 @@ describe("Firebase array", function () {
 
     it("returns array of firebase objects", function () {
       var keyValue = {'1': {name: 'a'}, '2': {name: 'b'}}
-      expect(firebaseArray.getArrayFromKeyValue(keyValue)).toEqual([{name: 'a'}, {name: 'b'}])
+      expect(firebaseArray.getArrayFromKeyValue(keyValue)).toEqual([{urlId: '1', name: 'a'}, {urlId: '2', name: 'b'}])
     })
 
 

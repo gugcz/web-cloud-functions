@@ -64,7 +64,7 @@ describe("A EventDateComparator -", function () {
   describe("isPastEvent", function () {
     it("compares event date and return true for past event", function () {
       var event = {
-        dates: {
+        datesFilter: {
           start: '2017-09-02T16:00:00.000Z'
         }
       }
@@ -73,7 +73,7 @@ describe("A EventDateComparator -", function () {
 
     it("compares event date and return false for future event", function () {
       var event = {
-        dates: {
+        datesFilter: {
 
           // TODO Generate date next year programmatically
           start: '2018-09-02T16:00:00.000Z' // Event date is next year
@@ -88,7 +88,7 @@ describe("A EventDateComparator -", function () {
   describe("isFutureEvent", function () {
     it("compares event date and return false for past event", function () {
       var event = {
-        dates: {
+        datesFilter: {
           start: '2017-09-02T16:00:00.000Z'
         }
       }
@@ -97,7 +97,7 @@ describe("A EventDateComparator -", function () {
 
     it("compares event date and return true for future event", function () {
       var event = {
-        dates: {
+        datesFilter: {
           // TODO Generate date next year programmatically
           start: '2018-09-02T16:00:00.000Z' // Event date is next year
         }
