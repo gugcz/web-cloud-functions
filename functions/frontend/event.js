@@ -1,6 +1,7 @@
 const database = require('../libs/database').database // TODO Mock for test
 const EventDateFormatter = require('../libs/date').EventDateFormatter
 const EventDateComparator = require('../libs/date').EventDateComparator
+const EventDataFormatter = require('../libs/event')
 const firebaseArray = require('../libs/firebase-array')
 
 const EVENTS_PATH = 'publishedEvents';
@@ -14,8 +15,32 @@ exports.getEvent = function (request, response) {
 
   let eventPromise = database.ref(EVENTS_PATH + '/' + eventId).once('value');
 
-  eventPromise.then(eventSnapshot => response.send(eventSnapshot.val()));
+  eventPromise.then(eventSnapshot => {
+    let event = eventSnapshot.val();
+    let organizersIds = firebaseArray.getArrayFromIdList(event.organizers);
+    let chaptersIds = firebaseArray.getArrayFromIdList(event.chapters);
 
+    Promise.all([getChaptersInfo(chaptersIds), getOrganizersInfo(organizersIds)]).then(results => {
+      event.chapters = results[0];
+      event.organizers = results[1];
+      response.send(event)
+    })
+  });
+
+}
+
+function getOrganizersInfo(organizersIds) {
+  let promises = organizersIds.map(id => database.ref('organizers/' + id).once('value'));
+
+  return Promise.all(promises).then(organizersInfo => organizersInfo.map(EventDataFormatter.organizerArrayOfSnapshotsMap))
+}
+
+
+// TODO Use chapter module
+function getChaptersInfo(chaptersIds) {
+  let promises = chaptersIds.map(id => database.ref('chapters/' + id).once('value'));
+
+  return Promise.all(promises).then(chaptersInfo => chaptersInfo.map(EventDataFormatter.chapterArrayOfSnapshotsMap))
 }
 
 

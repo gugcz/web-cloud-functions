@@ -13,6 +13,8 @@ exports.getEventDataInPublishFormat = function (eventData) {
     cover: eventData.cover || '',
     regFormLink: eventData.regFormLink || '',
     chaptersFilter: eventData.chapters || [],
+    chapters: eventData.chapters || [],
+    organizers: eventData.organizers || [],
     links: eventData.links || []
   };
 }

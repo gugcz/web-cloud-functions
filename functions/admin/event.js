@@ -61,16 +61,12 @@ function arraySnapshotIsEmpty(eventsSnapshot) {
 
 
 function publishEventPromise(eventData, publishedEventUrl, promisesToAdd) {
-  let organizersIds = firebaseArray.getArrayFromIdList(eventData.organizers);
-  let chaptersIds = firebaseArray.getArrayFromIdList(eventData.chapters);
+
 
   let publishedEvent = EventDataFormatter.getEventDataInPublishFormat(eventData);
 
 
-  return Promise.all([getOrganizersInfo(organizersIds), getChaptersInfo(chaptersIds)].concat(promisesToAdd)).then(result => {
-    publishedEvent.organizers = result[0];
-    publishedEvent.chapters = result[1];
-
+  return Promise.all(promisesToAdd).then(() => {
     return getPublishedEventRef(publishedEventUrl).set(publishedEvent);
   })
 }
@@ -79,19 +75,7 @@ function getPublishedEventIdPropertyInEventRef(eventId) {
   return database.ref('events/' + eventId + '/publishedEventId');
 }
 
-function getOrganizersInfo(organizersIds) {
-  let promises = organizersIds.map(id => database.ref('organizers/' + id).once('value'));
 
-  return Promise.all(promises).then(organizersInfo => organizersInfo.map(EventDataFormatter.organizerArrayOfSnapshotsMap))
-}
-
-
-// TODO Use chapter module
-function getChaptersInfo(chaptersIds) {
-  let promises = chaptersIds.map(id => database.ref('chapters/' + id).once('value'));
-
-  return Promise.all(promises).then(chaptersInfo => chaptersInfo.map(EventDataFormatter.chapterArrayOfSnapshotsMap))
-}
 
 
 
