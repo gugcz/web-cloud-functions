@@ -24,25 +24,25 @@ exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
 
 // Organizers functions
 exports.getOrganizers = functions.https.onRequest((req, res) => {
-    organizerModule.getOrganizers(req, res, database);
+  organizerModule.getOrganizers(req, res, database);
 });
 
 // Chapter functions
 exports.getChapter = functions.https.onRequest((req, res) => {
-    chapterModule.getChapter(req, res, database);
+  chapterModule.getChapter(req, res, database);
 });
 exports.getChapters = functions.https.onRequest((req, res) => {
-    chapterModule.getChapters(req, res, database);
+  chapterModule.getChapters(req, res, database);
 });
 
 
 // Sections functions
 exports.getSections = functions.https.onRequest((req, res) => {
-    sectionModule.getSections(req, res, database);
+  sectionModule.getSections(req, res, database);
 });
 
 exports.getSection = functions.https.onRequest((req, res) => {
-    sectionModule.getSection(req, res, database);
+  sectionModule.getSection(req, res, database);
 });
 
 // Event functions
@@ -67,22 +67,22 @@ const adminEventModule = require('./admin/event')
 // Events functions
 // TODO POST function?
 exports.saveAndPublishEvent = functions.https.onRequest((req, res) => {
-    let idToken;
-    if (req.get("authorization")) {
-        console.log('Found "Authorization" header');
-        // Read the ID Token from the Authorization header.
-        idToken = req.get("authorization")
-    } else {
-        res.status(403).send('Unauthorized');
-    }
-    admin.auth().verifyIdToken(idToken).then(decodedIdToken => {
-        console.log('ID Token correctly decoded', decodedIdToken);
-        req.user = decodedIdToken;
-        // TODO
-    }).catch(error => {
-        console.error('Error while verifying Firebase ID token:', error);
-        res.status(403).send('Unauthorized');
-    });
+  let idToken;
+  if (req.get("authorization")) {
+    console.log('Found "Authorization" header');
+    // Read the ID Token from the Authorization header.
+    idToken = req.get("authorization")
+  } else {
+    res.status(403).send('Unauthorized');
+  }
+  admin.auth().verifyIdToken(idToken).then(decodedIdToken => {
+    console.log('ID Token correctly decoded', decodedIdToken);
+    req.user = decodedIdToken;
+    // TODO
+  }).catch(error => {
+    console.error('Error while verifying Firebase ID token:', error);
+    res.status(403).send('Unauthorized');
+  });
 
 
 });
@@ -92,7 +92,7 @@ exports.saveEvent = functions.https.onRequest(((req, resp) => {
   console.log(req.body.eventData)
 
   console.log("body", req.body);
-    // TODO Add authentication and authorization
+  // TODO Add authentication and authorization
   //adminEventModule.saveEvent(eventData, req.body.cover).then(resp.send('Event saved'))
   resp.send('OK')
 }))
@@ -113,47 +113,50 @@ function eventWasDeleted(eventSnapshot) {
   return !eventSnapshot.exists();
 }
 
+function dataWasNotChangedByUser(eventSnapshot) {
+  return eventSnapshot.child('publishedEventId').changed();
+}
+
 exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onWrite(writeEvent => {
 
 
+  let eventSnapshot = writeEvent.data
 
-    let eventSnapshot = writeEvent.data
+  if (dataWasNotChangedByUser(eventSnapshot)) {
+    return null;
+  }
 
-    if (eventSnapshot.child('published').changed()) { // TODO Change other data have to rewrite in published (change publishedId in events cannot trigger this func again)
-      if (eventWasDeleted(eventSnapshot)) {
-        // Snapshot data are null
-        return adminEventModule.deletePublishedEvent(eventSnapshot.previous)
-      } else if (eventWasPublished(eventSnapshot)) {
-        return adminEventModule.publishEvent(eventSnapshot);
-      } else if (publishedEventWasUnpublished(eventSnapshot)) {
-        return adminEventModule.unpublishEvent(eventSnapshot);
-      } else if (publishedEventWasUpdated(eventSnapshot)) {
-        return adminEventModule.updatePublishedEvent(eventSnapshot)
-      }
-    }
-
-
-
-  return null;
+  if (eventWasDeleted(eventSnapshot)) {
+    // Snapshot data are null
+    return adminEventModule.deletePublishedEvent(eventSnapshot.previous)
+  } else if (eventWasPublished(eventSnapshot)) {
+    return adminEventModule.publishEvent(eventSnapshot);
+  } else if (publishedEventWasUnpublished(eventSnapshot)) {
+    return adminEventModule.unpublishEvent(eventSnapshot);
+  } else if (publishedEventWasUpdated(eventSnapshot)) {
+    return adminEventModule.updatePublishedEvent(eventSnapshot)
+  } else {
+    return null;
+  }
 
 })
 
 exports.deleteEvent = functions.https.onRequest(((req, resp) => {
-    // TODO Add authentication and authorization
-    if (req.query.id) {
-        adminEventModule.deleteEvent(req.query.id).then(resp.send('Event deleted'))
-    }
-    else {
-        resp.sendStatus(404)
-    }
+  // TODO Add authentication and authorization
+  if (req.query.id) {
+    adminEventModule.deleteEvent(req.query.id).then(resp.send('Event deleted'))
+  }
+  else {
+    resp.sendStatus(404)
+  }
 }))
 exports.unpublishEvent = functions.https.onRequest(((req, resp) => {
-    // TODO Add authentication and authorization
-    if (req.query.id) {
-        adminEventModule.unpublishEvent(req.query.id).then(resp.send('Event unpublished'))
-    }
-    else {
-        resp.sendStatus(404)
-    }
+  // TODO Add authentication and authorization
+  if (req.query.id) {
+    adminEventModule.unpublishEvent(req.query.id).then(resp.send('Event unpublished'))
+  }
+  else {
+    resp.sendStatus(404)
+  }
 }))
 
