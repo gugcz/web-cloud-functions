@@ -1,4 +1,4 @@
-const EventDateFormatter = require('./date').EventDateFormatter
+const EventDateFormatter = require('./date/date-formatter')
 var marked = require('marked');
 
 exports.getEventDataInPublishFormat = function (eventData) {
@@ -8,7 +8,7 @@ exports.getEventDataInPublishFormat = function (eventData) {
     subtitle: eventData.subtitle || '',
     description: marked(eventData.description) || '',
     datesFilter: {start: eventData.dates.start, end: eventData.dates.end},
-    dates: new EventDateFormatter(eventData.dates).getDates(),
+    dates: EventDateFormatter.getDates(eventData.dates),
     venue: eventData.venue || {name: 'Bez místa konání'},
     cover: eventData.cover || '',
     regFormLink: eventData.regFormLink || '',

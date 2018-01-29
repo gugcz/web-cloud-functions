@@ -1,28 +1,26 @@
-const EventDateFormatter = require('../libs/date').EventDateFormatter
-const EventDateComparator = require('../libs/date').EventDateComparator
+const EventDateFormatter = require('../libs/date/date-formatter')
+const EventDateComparator = require('../libs/date/date-comparator')
 
 var dates;
 
 
 describe("A EventDateFormatter for single-day event", function () {
 
-  var formatter;
 
   beforeEach(function() {
     dates = {
       start: "2017-09-03T16:00:00.000Z",
       end: "2017-09-03T18:00:00.000Z"
     }
-    formatter = new EventDateFormatter(dates)
   });
 
 
   it("transform date string to string in format DD.MM.YYYY", function () {
-    expect(formatter.getDate()).toBe("3.9.2017")
+    expect(EventDateFormatter.getDate(dates)).toBe("3.9.2017")
   })
 
   it("transform date string to time range string in format HH:MM - HH:MM", function () {
-    expect(formatter.getTime()).toBe("18:00 - 20:00")
+    expect(EventDateFormatter.getTime(dates)).toBe("18:00 - 20:00")
   })
 
   it("returns object with time and date property", function () {
@@ -31,7 +29,7 @@ describe("A EventDateFormatter for single-day event", function () {
       date: "3.9.2017",
       time: "18:00 - 20:00"
     }
-    expect(formatter.getDates()).toEqual(expectedDates)
+    expect(EventDateFormatter.getDates(dates)).toEqual(expectedDates)
   })
 });
 
@@ -44,7 +42,6 @@ describe("A EventDateFormatter for multiple-day event", function () {
       start: "2017-09-02T16:00:00.000Z",
       end: "2017-09-03T18:00:00.000Z"
     }
-    formatter = new EventDateFormatter(dates)
   });
 
 
@@ -53,13 +50,12 @@ describe("A EventDateFormatter for multiple-day event", function () {
       isMultiDay: true,
       datesAndTimes: "2.9.2017 (18:00) - 3.9.2017 (20:00)"
     }
-    expect(formatter.getDates()).toEqual(expectedDates)
+    expect(EventDateFormatter.getDates(dates)).toEqual(expectedDates)
   })
 });
 
 describe("A EventDateComparator -", function () {
 
-  var comparator = new EventDateComparator()
 
   describe("isPastEvent", function () {
     it("compares event date and return true for past event", function () {
@@ -68,7 +64,7 @@ describe("A EventDateComparator -", function () {
           start: '2017-09-02T16:00:00.000Z'
         }
       }
-      expect(comparator.isPastEvent(event)).toEqual(true)
+      expect(EventDateComparator.isPastEvent(event)).toEqual(true)
     })
 
     it("compares event date and return false for future event", function () {
@@ -79,20 +75,21 @@ describe("A EventDateComparator -", function () {
           start: '2018-09-02T16:00:00.000Z' // Event date is next year
         }
       }
-      expect(comparator.isPastEvent(event)).toEqual(false)
+      expect(EventDateComparator.isPastEvent(event)).toEqual(false)
     })
 
 
   })
 
   describe("isFutureEvent", function () {
+
     it("compares event date and return false for past event", function () {
       var event = {
         datesFilter: {
           start: '2017-09-02T16:00:00.000Z'
         }
       }
-      expect(comparator.isFutureEvent(event)).toEqual(false)
+      expect(EventDateComparator.isFutureEvent(event)).toEqual(false)
     })
 
     it("compares event date and return true for future event", function () {
@@ -102,7 +99,7 @@ describe("A EventDateComparator -", function () {
           start: '2018-09-02T16:00:00.000Z' // Event date is next year
         }
       }
-      expect(comparator.isFutureEvent(event)).toEqual(true)
+      expect(EventDateComparator.isFutureEvent(event)).toEqual(true)
     })
 
 
@@ -113,8 +110,11 @@ describe("A EventDateComparator -", function () {
       let events = [
         {datesFilter: {start: '2018-09-02T16:00:00.000Z'}}, {datesFilter: {start: '2018-09-03T16:00:00.000Z'}}, {datesFilter: {start: '2018-09-04T16:00:00.000Z'}}, {datesFilter: {start: '2018-09-05T16:00:00.000Z'}}
       ]
+      let sortedEvents = [
+        {datesFilter: {start: '2018-09-02T16:00:00.000Z'}}, {datesFilter: {start: '2018-09-03T16:00:00.000Z'}}, {datesFilter: {start: '2018-09-04T16:00:00.000Z'}}, {datesFilter: {start: '2018-09-05T16:00:00.000Z'}}
+      ]
 
-      expect(events.sort(comparator.sortEventsByDateFuture)).toEqual(events)
+      expect(events.sort(EventDateComparator.sortEventsByDateFuture)).toEqual(sortedEvents)
     })
 
     it("sort events for past events as youngest first", function () {
@@ -128,7 +128,7 @@ describe("A EventDateComparator -", function () {
 
 
 
-      expect(events.sort(comparator.sortEventsByDatePast)).toEqual(sortedEvents)
+      expect(events.sort(EventDateComparator.sortEventsByDatePast)).toEqual(sortedEvents)
     })
   })
 

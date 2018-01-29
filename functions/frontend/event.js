@@ -1,6 +1,5 @@
 const database = require('../libs/database').database // TODO Mock for test
-const EventDateFormatter = require('../libs/date').EventDateFormatter
-const EventDateComparator = require('../libs/date').EventDateComparator
+const EventDateComparator = require('../libs/date/date-comparator')
 const EventDataFormatter = require('../libs/event')
 const firebaseArray = require('../libs/firebase-array')
 
@@ -54,9 +53,7 @@ exports.getPastSixEvents = function (request, response) {
     if (eventsSnapshot.numChildren() === 0) {
       response.send([])
     }
-    let dateComparator =  new EventDateComparator()
-    let pastEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isPastEvent)
-    console.log(firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter())
+    let pastEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(EventDateComparator.isPastEvent)
     response.send(pastEventsArray.sort(EventDateComparator.sortEventsByDatePast).map(EventDataFormatter.eventCardMap).slice(0, 6))
   })
 }
@@ -84,8 +81,8 @@ exports.getFutureEvents = function (request, response) {
 
   getEventsPromise(chapterId, sectionId).then(function (eventsSnapshot) {
 
-    let dateComparator =  new EventDateComparator()
-    let futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isFutureEvent)
+
+    let futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(EventDateComparator.isFutureEvent)
 
 
     if (futureEventsArray.length === 0) {

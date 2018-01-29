@@ -1,5 +1,5 @@
 const moment = require('moment');
-exports.EventDateFormatter = function (dates) {
+let EventDateFormatter = function (dates) {
   dates.start = new Date(dates.start)
 
   dates.end = new Date(dates.end)
@@ -65,28 +65,19 @@ exports.EventDateFormatter = function (dates) {
   function getTimeForSingleDayEvent(dates) {
     return getTime(dates.start) + ' - ' + getTime(dates.end)
   }
+};
+
+exports.getDates = function(dates) {
+  let dateFormatter = new EventDateFormatter(dates);
+  return dateFormatter.getDates();
+}
+exports.getDate = function(dates) {
+  let dateFormatter = new EventDateFormatter(dates);
+  return dateFormatter.getDate();
 }
 
-exports.EventDateComparator = function () {
-
-  this.isPastEvent = function (event) {
-    return moment(event.datesFilter.start).isBefore()
-  }
-
-  this.isFutureEvent = function (event) {
-    return moment(event.datesFilter.start).isAfter()
-  }
-
-  this.sortEventsByDateFuture = function (a, b) {
-    // Turn your strings into datesFilter, and then subtract them
-    // to get a value that is either negative, positive, or zero.
-    return new Date(b.datesFilter.start) - new Date(a.datesFilter.start);
-  }
-
-  this.sortEventsByDatePast = function (a, b) {
-    // Turn your strings into datesFilter, and then subtract them
-    // to get a value that is either negative, positive, or zero.
-    return new Date(b.datesFilter.start) - new Date(a.datesFilter.start);
-  }
-
+exports.getTime = function(dates) {
+  let dateFormatter = new EventDateFormatter(dates);
+  return dateFormatter.getTime();
 }
+
