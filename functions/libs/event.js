@@ -40,3 +40,10 @@ exports.eventCardMap = event => ({
   subtitle: event.subtitle || '',
   urlId: event.urlId
 })
+
+exports.eventMarkerMap = event => ({
+  name: event.name,
+  section: event.section || 'gdg',
+  coordinates: event.venue.coordinates || '',
+  urlId: event.urlId
+})

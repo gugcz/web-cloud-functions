@@ -58,6 +58,10 @@ exports.getFutureEvents = functions.https.onRequest((req, res) => {
   frontendEventModule.getFutureEvents(req, res);
 });
 
+exports.getMapOfEvents = functions.https.onRequest((req, res) => {
+  frontendEventModule.getMapOfEvents(req, res);
+});
+
 
 /**
  * Admin functions

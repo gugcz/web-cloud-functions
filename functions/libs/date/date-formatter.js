@@ -17,7 +17,7 @@ let EventDateFormatter = function (dates) {
   }
 
   function getDate(date) {
-    return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear() // date.getMonth() + 1 cause of months are 0..11
+    return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear() // date.getMonth() + 1 cause of months are 0...11
   }
 
   function getTime(date) {

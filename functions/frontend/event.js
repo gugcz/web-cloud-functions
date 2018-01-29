@@ -35,6 +35,17 @@ function getOrganizersInfo(organizersIds) {
   return Promise.all(promises).then(organizersInfo => organizersInfo.map(EventDataFormatter.organizerArrayOfSnapshotsMap))
 }
 
+exports.getMapOfEvents = function (request, response) {
+  getEventsPromise().then(eventsSnapshot => {
+
+    if (eventsSnapshot.numChildren() === 0) {
+      response.send([])
+    }
+    let futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(EventDateComparator.isFutureEvent)
+    response.send(futureEventsArray.sort(EventDateComparator.sortEventsByDatePast).map(EventDataFormatter.eventMarkerMap))
+  })
+}
+
 
 // TODO Use chapter module
 function getChaptersInfo(chaptersIds) {
@@ -94,21 +105,6 @@ exports.getFutureEvents = function (request, response) {
       response.send(sortedFutureEventsArray.slice(0, 1).concat(sortedFutureEventsArray.slice(1).map(EventDataFormatter.eventCardMap)))
     }
   })
-}
-
-
-
-
-function sortEventsByDate(events) {
-  return events.sort(function(a,b){
-    // Turn your strings into datesFilter, and then subtract them
-    // to get a value that is either negative, positive, or zero.
-    return new Date(b.datesFilter.start) - new Date(a.datesFilter.start);
-  });
-}
-
-function getFirsItemInKeyValue(keyValue) {
-  return firebaseArray.getArrayFromKeyValue(keyValue)[0]
 }
 
 
