@@ -32,7 +32,7 @@ function getChaptersFromSectionRef(sectionId) {
 }
 
 function getChapterRef(chapterId) {
-  database.ref('chapters/' + chapterId);
+  return database.ref('chapters/' + chapterId);
 }
 
 

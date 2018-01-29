@@ -16,6 +16,7 @@ exports.getEvent = function (request, response) {
   let eventPromise = database.ref(EVENTS_PATH + '/' + eventId).once('value');
 
   eventPromise.then(eventSnapshot => {
+
     let event = eventSnapshot.val();
     let organizersIds = firebaseArray.getArrayFromIdList(event.organizers);
     let chaptersIds = firebaseArray.getArrayFromIdList(event.chapters);
@@ -55,7 +56,8 @@ exports.getPastSixEvents = function (request, response) {
     }
     let dateComparator =  new EventDateComparator()
     let pastEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(dateComparator.isPastEvent)
-    response.send(sortEventsByDate(pastEventsArray).map(eventCardMap).slice(0, 6))
+    console.log(firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter())
+    response.send(pastEventsArray.sort(EventDateComparator.sortEventsByDatePast).map(EventDataFormatter.eventCardMap).slice(0, 6))
   })
 }
 
@@ -90,23 +92,15 @@ exports.getFutureEvents = function (request, response) {
       response.send([])
     }
     else {
-      let sortedFutureEventsArray = futureEventsArray.sort((a, b) => {return new Date(a.datesFilter.start) - new Date(b.datesFilter.start)})
+      let sortedFutureEventsArray = futureEventsArray.sort(EventDateComparator.sortEventsByDateFuture)
       console.log(sortedFutureEventsArray)
-      response.send(sortedFutureEventsArray.slice(0, 1).concat(sortedFutureEventsArray.slice(1).map(eventCardMap)))
+      response.send(sortedFutureEventsArray.slice(0, 1).concat(sortedFutureEventsArray.slice(1).map(EventDataFormatter.eventCardMap)))
     }
   })
 }
 
 
-function eventCardMap(event) {
 
-  return {
-    name: event.name,
-    cover: event.cover || '',
-    subtitle: event.subtitle || '',
-    urlId: event.urlId
-  }
-}
 
 function sortEventsByDate(events) {
   return events.sort(function(a,b){

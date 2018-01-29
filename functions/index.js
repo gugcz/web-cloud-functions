@@ -119,7 +119,7 @@ exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onW
 
     let eventSnapshot = writeEvent.data
 
-    if (eventSnapshot.child('published').changed()) {
+    if (eventSnapshot.child('published').changed()) { // TODO Change other data have to rewrite in published (change publishedId in events cannot trigger this func again)
       if (eventWasDeleted(eventSnapshot)) {
         // Snapshot data are null
         return adminEventModule.deletePublishedEvent(eventSnapshot.previous)

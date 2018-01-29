@@ -33,3 +33,10 @@ exports.organizerArrayOfSnapshotsMap = organizer => {
     profilePicture: organizer.val().profilePicture || ''
   }
 }
+
+exports.eventCardMap = event => ({
+  name: event.name,
+  cover: event.cover || '',
+  subtitle: event.subtitle || '',
+  urlId: event.urlId
+})

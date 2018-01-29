@@ -17,7 +17,7 @@ exports.EventDateFormatter = function (dates) {
   }
 
   function getDate(date) {
-    return date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear()
+    return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear() // date.getMonth() + 1 cause of months are 0..11
   }
 
   function getTime(date) {
@@ -50,7 +50,7 @@ exports.EventDateFormatter = function (dates) {
     }
   }
 
-  this.getDates = function() {
+  this.getDates = function () {
     dates.start = new Date(dates.start)
     dates.end = new Date(dates.end)
     if (isMultiDayEvent(dates)) {
@@ -75,6 +75,18 @@ exports.EventDateComparator = function () {
 
   this.isFutureEvent = function (event) {
     return moment(event.datesFilter.start).isAfter()
+  }
+
+  this.sortEventsByDateFuture = function (a, b) {
+    // Turn your strings into datesFilter, and then subtract them
+    // to get a value that is either negative, positive, or zero.
+    return new Date(b.datesFilter.start) - new Date(a.datesFilter.start);
+  }
+
+  this.sortEventsByDatePast = function (a, b) {
+    // Turn your strings into datesFilter, and then subtract them
+    // to get a value that is either negative, positive, or zero.
+    return new Date(b.datesFilter.start) - new Date(a.datesFilter.start);
   }
 
 }

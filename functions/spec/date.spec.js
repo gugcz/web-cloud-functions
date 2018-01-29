@@ -18,7 +18,7 @@ describe("A EventDateFormatter for single-day event", function () {
 
 
   it("transform date string to string in format DD.MM.YYYY", function () {
-    expect(formatter.getDate()).toBe("3.8.2017")
+    expect(formatter.getDate()).toBe("3.9.2017")
   })
 
   it("transform date string to time range string in format HH:MM - HH:MM", function () {
@@ -28,7 +28,7 @@ describe("A EventDateFormatter for single-day event", function () {
   it("returns object with time and date property", function () {
     var expectedDates = {
       isMultiDay: false,
-      date: "3.8.2017",
+      date: "3.9.2017",
       time: "18:00 - 20:00"
     }
     expect(formatter.getDates()).toEqual(expectedDates)
@@ -51,7 +51,7 @@ describe("A EventDateFormatter for multiple-day event", function () {
   it("returns object with datesAndTimes property in format ", function () {
     var expectedDates = {
       isMultiDay: true,
-      datesAndTimes: "2.8.2017 (18:00) - 3.8.2017 (20:00)"
+      datesAndTimes: "2.9.2017 (18:00) - 3.9.2017 (20:00)"
     }
     expect(formatter.getDates()).toEqual(expectedDates)
   })
@@ -106,6 +106,30 @@ describe("A EventDateComparator -", function () {
     })
 
 
+  })
+
+  describe('sortEventsByDate', function () {
+    it("sort events for future events as nearest first", function () {
+      let events = [
+        {datesFilter: {start: '2018-09-02T16:00:00.000Z'}}, {datesFilter: {start: '2018-09-03T16:00:00.000Z'}}, {datesFilter: {start: '2018-09-04T16:00:00.000Z'}}, {datesFilter: {start: '2018-09-05T16:00:00.000Z'}}
+      ]
+
+      expect(events.sort(comparator.sortEventsByDateFuture)).toEqual(events)
+    })
+
+    it("sort events for past events as youngest first", function () {
+      let events = [
+        {datesFilter: {start: '2016-09-02T16:00:00.000Z'}}, {datesFilter: {start: '2016-09-03T16:00:00.000Z'}}, {datesFilter: {start: '2016-09-04T16:00:00.000Z'}}, {datesFilter: {start: '2016-09-05T16:00:00.000Z'}}
+      ]
+
+      let sortedEvents = [
+        {datesFilter: {start: '2016-09-05T16:00:00.000Z'}}, {datesFilter: {start: '2016-09-04T16:00:00.000Z'}}, {datesFilter: {start: '2016-09-03T16:00:00.000Z'}}, {datesFilter: {start: '2016-09-02T16:00:00.000Z'}}
+      ]
+
+
+
+      expect(events.sort(comparator.sortEventsByDatePast)).toEqual(sortedEvents)
+    })
   })
 
 
