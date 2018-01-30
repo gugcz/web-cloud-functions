@@ -1,7 +1,7 @@
 const UrlCreator = require('../libs/url').UrlCreator;
 const database = require('../libs/database').database;
 
-const EventDataFormatter = require('../libs/event');
+const EventDataFormatter = require('../libs/event/event');
 const file = require('../libs/file');
 
 
@@ -25,8 +25,7 @@ exports.publishEvent = function(eventSnapshot) {
   return database.ref('publishedEvents').once('value').then(eventsSnapshot => {
     if (arraySnapshotIsNotEmpty(eventsSnapshot)) {
 
-      Array.prototype.push.apply(usedUrls, Object.keys(eventsSnapshot.val()));
-      console.log('URLs', usedUrls);
+      Array.prototype.push.apply(usedUrls, Object.keys(eventsSnapshot.val())); // Merge arrays
     }
 
     let publishedEventUrl = new UrlCreator(eventData, usedUrls).getUrl();

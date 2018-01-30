@@ -1,7 +1,5 @@
 const functions = require('firebase-functions');
 const database = require('./libs/database').database
-const storage = require('./libs/database').storage
-const firestore = require('./libs/database').firestore
 
 
 /**
@@ -12,14 +10,14 @@ const organizerModule = require('./frontend/organizer')
 const chapterModule = require('./frontend/chapter')
 const sectionModule = require('./frontend/section')
 
-exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
+/*exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
   database.ref('chapters').once('value').then(chapters => {
     chapters.forEach(chapter => {
       database.ref('chapters/' + chapter.key + '/logo').set('https://storage.googleapis.com/gug-web.appspot.com/logos/chapter/' + chapter.key + '.png')
     })
     resp.send('OK')
   })
-}))
+}))*/
 
 
 // Organizers functions
@@ -68,28 +66,7 @@ exports.getMapOfEvents = functions.https.onRequest((req, res) => {
  */
 const adminEventModule = require('./admin/event')
 
-// Events functions
-// TODO POST function?
-exports.saveAndPublishEvent = functions.https.onRequest((req, res) => {
-  let idToken;
-  if (req.get("authorization")) {
-    console.log('Found "Authorization" header');
-    // Read the ID Token from the Authorization header.
-    idToken = req.get("authorization")
-  } else {
-    res.status(403).send('Unauthorized');
-  }
-  admin.auth().verifyIdToken(idToken).then(decodedIdToken => {
-    console.log('ID Token correctly decoded', decodedIdToken);
-    req.user = decodedIdToken;
-    // TODO
-  }).catch(error => {
-    console.error('Error while verifying Firebase ID token:', error);
-    res.status(403).send('Unauthorized');
-  });
 
-
-});
 
 exports.saveEvent = functions.https.onRequest(((req, resp) => {
 

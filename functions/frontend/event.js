@@ -1,6 +1,6 @@
 const database = require('../libs/database').database // TODO Mock for test
 const EventDateComparator = require('../libs/date/date-comparator')
-const EventDataFormatter = require('../libs/event')
+const EventDataFormatter = require('../libs/event/event')
 const firebaseArray = require('../libs/firebase-array')
 
 const EVENTS_PATH = 'publishedEvents';

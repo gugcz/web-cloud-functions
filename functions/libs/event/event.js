@@ -1,4 +1,5 @@
-const EventDateFormatter = require('./date/date-formatter')
+const EventDateFormatter = require('../date/date-formatter')
+const EventSection = require('./event-section')
 var marked = require('marked');
 
 exports.getEventDataInPublishFormat = function (eventData) {
@@ -42,16 +43,10 @@ exports.eventCardMap = event => ({
 
 exports.eventMarkerMap = event => ({
   name: event.name,
-  section: getEventSection(event.chapters) || 'gdg',
+  section: EventSection.getEventSection(event.chapters) || '',
   date: EventDateFormatter.getDateWithoutYear(event.datesFilter) || '',
   coordinates: event.venue.coordinates || '',
   urlId: event.urlId
 })
 
-// TODO Extract and test
-function getEventSection(chapters) {
-  let chapterIds = Object.keys(chapters).reverse() // Reverse because of alphabet order
-  var  counts = {};
-  chapterIds.map(chapterId => chapterId.substring(0, 3)).forEach(function(i) { counts[i] = (counts[i]||0) + 1;});
-  return Object.keys(counts).sort((firstId, secondId) => counts[firstId] - counts[secondId]).pop();
-}
+
