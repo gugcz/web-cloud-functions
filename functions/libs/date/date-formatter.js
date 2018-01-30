@@ -43,6 +43,10 @@ let EventDateFormatter = function (dates) {
     }
   }
 
+  this.getDateWithoutYear = function () {
+    return dates.start.getDate() + '.' + (dates.start.getMonth() + 1) + '.';
+  }
+
   function getDatesForMultiDayEvent(dates) {
     return {
       isMultiDay: true,
@@ -74,6 +78,11 @@ exports.getDates = function(dates) {
 exports.getDate = function(dates) {
   let dateFormatter = new EventDateFormatter(dates);
   return dateFormatter.getDate();
+}
+
+exports.getDateWithoutYear = function(dates) {
+  let dateFormatter = new EventDateFormatter(dates);
+  return dateFormatter.getDateWithoutYear();
 }
 
 exports.getTime = function(dates) {
