@@ -2,7 +2,6 @@ const UrlCreator = require('../libs/url').UrlCreator;
 const database = require('../libs/database').database;
 
 const EventDataFormatter = require('../libs/event');
-const firebaseArray = require('../libs/firebase-array');
 const file = require('../libs/file');
 
 
@@ -24,8 +23,10 @@ exports.publishEvent = function(eventSnapshot) {
   let usedUrls = [];
 
   return database.ref('publishedEvents').once('value').then(eventsSnapshot => {
-    if (arraySnapshotIsEmpty(eventsSnapshot)) {
-      usedUrls.concat(Object.keys(eventsSnapshot.val()))
+    if (arraySnapshotIsNotEmpty(eventsSnapshot)) {
+
+      Array.prototype.push.apply(usedUrls, Object.keys(eventsSnapshot.val()));
+      console.log('URLs', usedUrls);
     }
 
     let publishedEventUrl = new UrlCreator(eventData, usedUrls).getUrl();
@@ -54,7 +55,7 @@ exports.deletePublishedEvent = function(eventSnapshot) {
   return getPublishedEventRef(publishedEventId).remove()
 };
 
-function arraySnapshotIsEmpty(eventsSnapshot) {
+function arraySnapshotIsNotEmpty(eventsSnapshot) {
   return eventsSnapshot.val() !== null;
 }
 
