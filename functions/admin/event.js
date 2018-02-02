@@ -8,7 +8,7 @@ const file = require('../libs/file');
 
 exports.saveEvent = function(eventData) {
 
-  // TODO
+  return database.ref('events').push(eventData)
 
 };
 

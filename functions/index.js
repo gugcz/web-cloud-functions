@@ -74,7 +74,7 @@ exports.saveEvent = functions.https.onRequest(((req, resp) => {
 
   console.log("body", req.body);
   // TODO Add authentication and authorization
-  //adminEventModule.saveEvent(eventData, req.body.cover).then(resp.send('Event saved'))
+  //adminEventModule.saveEvent(eventData).then(resp.send('Event saved'))
   resp.send('OK')
 }))
 
