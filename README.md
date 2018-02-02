@@ -6,8 +6,8 @@ Firebase Cloud Functions for GUG.cz presentation web
 ### Save Event Function:
 
 There is a structure which is needed for save event function as part of body `eventData` : 
-```json
-{
+```javascript
+eventData = {
   // Required fields
   "name" : "Event Name",
   "regFormLink" : "https://forms.google.com",
