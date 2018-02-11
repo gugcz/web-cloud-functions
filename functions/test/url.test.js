@@ -93,6 +93,31 @@ describe("An UrlCreator for single event", function () {
     namesCitiesAndUrls.forEach(testNameToUrl);
   });
 
+  it("creates unique url, in case of problem it add city name without spaces to url", function () {
+    event.dates = {isRepeatingEvent: false}
+    let NameCityAndUrl = function (name, city, url) {
+      this.name = name
+      this.city = city.name
+      this.url = url
+    };
+
+
+    let namesCitiesAndUrls = [
+      new NameCityAndUrl('3D tisk', {name: 'Nové Město na Moravě'}, '3d-tisk-nove-mesto-na-morave'),
+      new NameCityAndUrl('GDG Garage',{name: 'Žďár nad Sázavou'}, 'gdg-garage-zdar-nad-sazavou'),
+      new NameCityAndUrl('Čtvrtkon',{name: ' České Budějovice'}, 'ctvrtkon-ceske-budejovice')
+    ];
+
+    let testNameToUrl = function (nameCityAndUrl) {
+      event.name = nameCityAndUrl.name
+      event.venue = {city: nameCityAndUrl.city}
+      var urlCreator = new UrlCreator(event, usedUrlsMock)
+      expect(urlCreator.getUrl()).toBe(nameCityAndUrl.url)
+    }
+
+    namesCitiesAndUrls.forEach(testNameToUrl);
+  });
+
   it("creates unique url, in case of problem with added city it adds number to url", function () {
     event.dates = {isRepeatingEvent: false}
     let NameCityAndUrl = function (name, city, url) {

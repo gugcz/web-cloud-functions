@@ -62,6 +62,6 @@ exports.UrlCreator = function (event, usedUrls) {
     }
 
     function addCityToUrl(url, city) {
-        return url + '-' + removeDiacritics(city).toLowerCase()
+        return url + '-' + removeSpacesAndSpecialChars(removeDiacritics(city)).toLowerCase()
     }
 }
