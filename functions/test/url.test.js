@@ -173,6 +173,8 @@ describe("An UrlCreator for multiple event", function () {
       new NameAndUrl('3D tisk Vol.1', '3d-tisk-1'),
       new NameAndUrl('3D tisk vol.1', '3d-tisk-1'),
       new NameAndUrl('3D tisk Vol. 1', '3d-tisk-1'),
+      new NameAndUrl('3D tisk no.1', '3d-tisk-1'),
+      new NameAndUrl('3D tisk no. 1', '3d-tisk-1'),
       new NameAndUrl('3D tisk vol. 1', '3d-tisk-1')
     ];
 

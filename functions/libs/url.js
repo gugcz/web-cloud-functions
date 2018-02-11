@@ -10,9 +10,11 @@ exports.UrlCreator = function (event, usedUrls) {
     }
 
     function getUrlForMultipleEvent() {
-        if (event.name.toLowerCase().includes('vol.')) {
+        if (event.name.toLowerCase().includes('vol.') || event.name.toLowerCase().includes('no.')) {
             event.name = event.name.replace('vol.', '#')
             event.name = event.name.replace('Vol.', '#')
+            event.name = event.name.replace('no.', '#')
+            event.name = event.name.replace('No.', '#')
         }
 
         return getUrlForSingleEvent()
