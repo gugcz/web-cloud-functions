@@ -70,14 +70,13 @@ const adminEventModule = require('./admin/event')
 
 
 exports.saveEvent = functions.https.onRequest(((req, resp) => {
-  validateFirebaseIdToken(req, resp, adminEventModule.saveEvent).then(resp.send('Event saved'));
+  validateFirebaseIdToken(req, resp, adminEventModule.saveEvent)
 }))
 
 function validateFirebaseIdToken(req, res, next) {
   console.log('Check if request is authorized with Firebase ID token');
 
-  if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&
-    !req.cookies.__session) {
+  if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
     console.error('No Firebase ID token was passed as a Bearer token in the Authorization header.',
       'Make sure you authorize your request by providing the following HTTP header:',
       'Authorization: Bearer <Firebase ID Token>',
@@ -91,10 +90,6 @@ function validateFirebaseIdToken(req, res, next) {
     console.log('Found "Authorization" header');
     // Read the ID Token from the Authorization header.
     idToken = req.headers.authorization.split('Bearer ')[1];
-  } else {
-    console.log('Found "__session" cookie');
-    // Read the ID Token from cookie.
-    idToken = req.cookies.__session;
   }
   return admin.auth().verifyIdToken(idToken).then((decodedIdToken) => {
     console.log('ID Token correctly decoded', decodedIdToken);
