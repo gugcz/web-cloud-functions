@@ -119,7 +119,7 @@ function eventWasDeleted(eventSnapshot) {
 }
 
 function dataWasNotChangedByUser(eventSnapshot) {
-  return eventSnapshot.child('publishedEventId').changed();
+  return !eventWasDeleted(eventSnapshot) && eventSnapshot.child('publishedEventId').changed();
 }
 
 exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onWrite(writeEvent => {
