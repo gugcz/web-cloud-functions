@@ -100,8 +100,8 @@ function getPastEventsPromise(chapterId, eventRef, request, sectionId) {
 
 
   eventRef = database.ref(EVENTS_PATH);
-  const fromDate = new Date();
-  return eventRef.orderByChild(DATES_FILTER + '/start').startAt((fromDate).toISOString()).once('value');
+  const fromDate = EventDateComparator.getDateObjectHalfYearAgo()
+  return eventRef.orderByChild(DATES_FILTER + '/start').startAt(fromDate.toISOString()).once('value');
 
 }
 
@@ -109,18 +109,17 @@ exports.getFutureEvents = function (request, response) {
   let chapterId = request.query.chapter;
   let sectionId = request.query.section;
 
-  getEventsPromise(chapterId, sectionId).then(function (eventsSnapshot) {
+  getFutureEventsPromise().then(function (eventsSnapshot) {
 
 
-    let futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(EventDateComparator.isFutureEvent)
+    let futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(event => event.chaptersFilter[chapterId])
 
 
     if (futureEventsArray.length === 0) {
       response.send([])
     }
     else {
-      let sortedFutureEventsArray = futureEventsArray.sort(EventDateComparator.sortEventsByDateFuture)
-      console.log(sortedFutureEventsArray)
+      let sortedFutureEventsArray = futureEventsArray;
       response.send(sortedFutureEventsArray.slice(0, 1).concat(sortedFutureEventsArray.slice(1).map(EventDataFormatter.eventCardMap)))
     }
   })

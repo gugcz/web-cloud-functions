@@ -21,6 +21,12 @@ npm install || yarn
 firebase serve --only functions
 ```
 
+##deploy 
+```javascript 
+firebase deploy --only functions
+firebase deploy --only functions:saveEvent
+```
+
 ### Save Event Function:
 
 There is a structure which is needed for save event function as part of body `eventData` : 

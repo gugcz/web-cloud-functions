@@ -15,3 +15,7 @@ exports.sortEventsByDateFuture = function (b, a) {
 exports.sortEventsByDatePast = function (a, b) {
   return new Date(b.datesFilter.start) - new Date(a.datesFilter.start);
 }
+
+exports.getDateObjectHalfYearAgo = function () {
+  return moment().subtract(6, 'months');
+}
