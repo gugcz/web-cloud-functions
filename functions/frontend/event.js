@@ -4,6 +4,7 @@ const EventDataFormatter = require('../libs/event/event')
 const firebaseArray = require('../libs/firebase-array')
 
 const EVENTS_PATH = 'publishedEvents';
+const DATES_FILTER = 'datesFilter';
 
 exports.getEvent = function (request, response) {
   let eventId = request.query.id;
@@ -41,6 +42,7 @@ exports.getMapOfEvents = function (request, response) {
     if (eventsSnapshot.numChildren() === 0) {
       response.send([])
     }
+    // TODO - Filter by Firebase API
     let futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(EventDateComparator.isFutureEvent)
     response.send(futureEventsArray.sort(EventDateComparator.sortEventsByDatePast).map(EventDataFormatter.eventMarkerMap))
   })
@@ -84,6 +86,23 @@ function getEventsPromise(chapterId, eventRef, request, sectionId) {
   }
 
   return eventRef.once('value')
+}
+
+
+function getFutureEventsPromise(chapterId, eventRef, request, sectionId) {
+
+
+  eventRef = database.ref(EVENTS_PATH);
+  return eventRef.orderByChild(DATES_FILTER + '/start').startAt((new Date()).toISOString()).once('value');
+}
+
+function getPastEventsPromise(chapterId, eventRef, request, sectionId) {
+
+
+  eventRef = database.ref(EVENTS_PATH);
+  const fromDate = new Date();
+  return eventRef.orderByChild(DATES_FILTER + '/start').startAt((fromDate).toISOString()).once('value');
+
 }
 
 exports.getFutureEvents = function (request, response) {

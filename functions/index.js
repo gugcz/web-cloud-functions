@@ -21,6 +21,20 @@ const sectionModule = require('./frontend/section')
 }))*/
 
 
+exports.helloWorld = functions.https.onRequest(((req, resp) => resp.send({name: 'Hello World'})));
+
+
+exports.eventEvnt = functions.https.onRequest(((req, resp) => {
+  eventRef = database.ref('publishedEvents');
+
+
+
+  eventRef.orderByChild('datesFilter/start').startAt((new Date()).toISOString()).orderByValue('chaptersFilter/gdg-uc-prague').equalTo(true).once('value').then(eventsSnapshot => {
+    console.log(eventsSnapshot.val())
+    resp.send(eventsSnapshot.val())})
+}));
+
+
 // Organizers functions
 exports.getOrganizers = functions.https.onRequest((req, res) => {
   organizerModule.getOrganizers(req, res, database);
