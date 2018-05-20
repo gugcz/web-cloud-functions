@@ -1,7 +1,25 @@
 # web-cloud-functions
 Firebase Cloud Functions for GUG.cz presentation web
 
+##install 
+Recomended NODE version: v6.11.5.
+StillWorking node version: v8.9.4
+- this is potencial source of issues
 
+install/update firebase-tools globally
+```javascript
+npm install -g firebase-tools
+```
+
+in directory `functions` run: 
+```javascript 
+npm install || yarn
+```
+
+##run 
+```javascript 
+firebase serve --only functions
+```
 
 ### Save Event Function:
 
