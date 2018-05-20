@@ -9,7 +9,7 @@ const file = require('../libs/file');
 exports.saveEvent = function(req, res) {
 
   const eventData = req.body.eventData;
-  console.log('Event data', eventData)
+  //console.log('Event data', eventData)
   return database.ref('events').push(eventData).then(res.send('Event saved'))
 
 };
