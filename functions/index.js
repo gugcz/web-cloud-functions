@@ -1,15 +1,15 @@
 const functions = require('firebase-functions');
-const database = require('./libs/database').database
+const database = require('./libs/database').database;
 const admin = require('firebase-admin');
 
 
 /**
  * Frontend functions
  */
-const frontendEventModule = require('./frontend/event')
-const organizerModule = require('./frontend/organizer')
-const chapterModule = require('./frontend/chapter')
-const sectionModule = require('./frontend/section')
+const frontendEventModule = require('./frontend/event');
+const organizerModule = require('./frontend/organizer');
+const chapterModule = require('./frontend/chapter');
+const sectionModule = require('./frontend/section');
 
 /*exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
   database.ref('chapters').once('value').then(chapters => {
@@ -79,13 +79,12 @@ exports.getMapOfEvents = functions.https.onRequest((req, res) => {
 /**
  * Admin functions
  */
-const adminEventModule = require('./admin/event')
-
+const adminEventModule = require('./admin/event');
 
 
 exports.saveEvent = functions.https.onRequest(((req, resp) => {
   validateFirebaseIdToken(req, resp, adminEventModule.saveEvent)
-}))
+}));
 
 function validateFirebaseIdToken(req, res, next) {
   console.log('Check if request is authorized with Firebase ID token');
@@ -113,7 +112,7 @@ function validateFirebaseIdToken(req, res, next) {
     console.error('Error while verifying Firebase ID token:', error);
     res.status(403).send('Unauthorized');
   });
-};
+}
 
 
 function publishedEventWasUpdated(eventSnapshot) {
@@ -132,33 +131,33 @@ function eventWasDeleted(eventSnapshot) {
   return !eventSnapshot.exists();
 }
 
-function dataWasNotChangedByUser(eventSnapshot) {
-  return !eventWasDeleted(eventSnapshot) && eventSnapshot.child('publishedEventId').changed();
+function dataWasNotChangedByUser(after, before) {
+  return !eventWasDeleted(after) && (after.child('publishedEventId').val() !== before.child('publishedEventId').val());
 }
 
-exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onWrite(writeEvent => {
+exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onWrite((change, context) => {
 
+  const afterSnapshot = change.after;
+  const beforeSnapshot = change.before;
 
-  let eventSnapshot = writeEvent.data
-
-  if (dataWasNotChangedByUser(eventSnapshot)) {
+  if (dataWasNotChangedByUser(afterSnapshot, beforeSnapshot)) {
     return null;
   }
 
-  if (eventWasDeleted(eventSnapshot)) {
+  if (eventWasDeleted(afterSnapshot)) {
     // Snapshot data are null
-    return adminEventModule.deletePublishedEvent(eventSnapshot.previous)
-  } else if (eventWasPublished(eventSnapshot)) {
-    return adminEventModule.publishEvent(eventSnapshot);
-  } else if (publishedEventWasUnpublished(eventSnapshot)) {
-    return adminEventModule.unpublishEvent(eventSnapshot);
-  } else if (publishedEventWasUpdated(eventSnapshot)) {
-    return adminEventModule.updatePublishedEvent(eventSnapshot)
+    return adminEventModule.deletePublishedEvent(change.before)
+  } else if (eventWasPublished(afterSnapshot)) {
+    return adminEventModule.publishEvent(afterSnapshot);
+  } else if (publishedEventWasUnpublished(afterSnapshot)) {
+    return adminEventModule.unpublishEvent(afterSnapshot);
+  } else if (publishedEventWasUpdated(afterSnapshot)) {
+    return adminEventModule.updatePublishedEvent(afterSnapshot)
   } else {
     return null;
   }
 
-})
+});
 
 exports.deleteEvent = functions.https.onRequest(((req, resp) => {
   // TODO Add authentication and authorization
@@ -168,7 +167,7 @@ exports.deleteEvent = functions.https.onRequest(((req, resp) => {
   else {
     resp.sendStatus(404)
   }
-}))
+}));
 exports.unpublishEvent = functions.https.onRequest(((req, resp) => {
   // TODO Add authentication and authorization
   if (req.query.id) {
@@ -177,5 +176,5 @@ exports.unpublishEvent = functions.https.onRequest(((req, resp) => {
   else {
     resp.sendStatus(404)
   }
-}))
+}));
 
