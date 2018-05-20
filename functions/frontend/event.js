@@ -27,8 +27,7 @@ exports.getEvent = function (request, response) {
       response.send(event)
     })
   });
-
-}
+};
 
 function getOrganizersInfo(organizersIds) {
   let promises = organizersIds.map(id => database.ref('organizers/' + id).once('value'));
@@ -37,16 +36,14 @@ function getOrganizersInfo(organizersIds) {
 }
 
 exports.getMapOfEvents = function (request, response) {
-  getEventsPromise().then(eventsSnapshot => {
-
+  getFutureEventsPromise().then(eventsSnapshot => {
     if (eventsSnapshot.numChildren() === 0) {
       response.send([])
     }
-    // TODO - Filter by Firebase API
-    let futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(EventDateComparator.isFutureEvent)
-    response.send(futureEventsArray.sort(EventDateComparator.sortEventsByDatePast).map(EventDataFormatter.eventMarkerMap))
+    const futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val());
+    response.send(futureEventsArray.map(EventDataFormatter.eventMarkerMap))
   })
-}
+};
 
 
 // TODO Use chapter module
@@ -89,10 +86,7 @@ function getEventsPromise(chapterId, eventRef, request, sectionId) {
 }
 
 
-function getFutureEventsPromise(chapterId, eventRef, request, sectionId) {
-
-
-  eventRef = database.ref(EVENTS_PATH);
+function getFutureEventsPromise(chapterId, eventRef = database.ref(EVENTS_PATH), request, sectionId) {
   return eventRef.orderByChild(DATES_FILTER + '/start').startAt((new Date()).toISOString()).once('value');
 }
 
@@ -123,7 +117,7 @@ exports.getFutureEvents = function (request, response) {
       response.send(sortedFutureEventsArray.slice(0, 1).concat(sortedFutureEventsArray.slice(1).map(EventDataFormatter.eventCardMap)))
     }
   })
-}
+};
 
 
 
