@@ -36,14 +36,16 @@ function getOrganizersInfo(organizersIds) {
 }
 
 exports.getMapOfEvents = function (request, response) {
-  getFutureEventsPromise().then(eventsSnapshot => {
-    if (eventsSnapshot.numChildren() === 0) {
-      response.send([])
-    }
-    const futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val());
-    response.send(futureEventsArray.map(EventDataFormatter.eventMarkerMap))
-  })
+  getFutureEventsPromise().then(eventsSnapshot => response.send(getMapDataFromSnapshot(eventsSnapshot)))
 };
+
+function getMapDataFromSnapshot(eventsSnapshot) {
+  if (eventsSnapshot.numChildren() !== 0) {
+    const futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val());
+    return futureEventsArray.map(EventDataFormatter.eventMarkerMap);
+  }
+  return []
+}
 
 
 // TODO Use chapter module
@@ -53,21 +55,24 @@ function getChaptersInfo(chaptersIds) {
   return Promise.all(promises).then(chaptersInfo => chaptersInfo.map(EventDataFormatter.chapterArrayOfSnapshotsMap))
 }
 
+exports.savePublicMapOfEvents = function () {
+  return getFutureEventsPromise().then(eventsSnapshot => database.ref('public/mapOfEvents').set(getMapDataFromSnapshot(eventsSnapshot)))
+};
+
 
 exports.getPastSixEvents = function (request, response) {
   let chapterId = request.query.chapter;
   let sectionId = request.query.section;
 
-  getEventsPromise(chapterId, sectionId).then(function (eventsSnapshot) {
+  getPastEventsPromise(chapterId, sectionId).then(function (eventsSnapshot) {
 
-    if (eventsSnapshot.numChildren() === 0) {
+    let pastEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(event => event.chaptersFilter[chapterId])
+    if (pastEventsArray.length === 0) {
       response.send([])
     }
-    let pastEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(EventDateComparator.isPastEvent)
     response.send(pastEventsArray.sort(EventDateComparator.sortEventsByDatePast).map(EventDataFormatter.eventCardMap).slice(0, 6))
   })
 }
-
 
 
 function getEventsPromise(chapterId, eventRef, request, sectionId) {

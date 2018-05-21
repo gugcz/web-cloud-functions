@@ -159,6 +159,8 @@ exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onW
 
 });
 
+exports.generateMapData = functions.database.ref('/publishedEvents/{eventId}').onWrite(() => frontendEventModule.savePublicMapOfEvents());
+
 exports.deleteEvent = functions.https.onRequest(((req, resp) => {
   // TODO Add authentication and authorization
   if (req.query.id) {
