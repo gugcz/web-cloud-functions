@@ -1,7 +1,8 @@
 # web-cloud-functions
 Firebase Cloud Functions for GUG.cz presentation web
 
-##install 
+## Install: 
+
 Recomended NODE version: v6.11.5.
 StillWorking node version: v8.9.4
 - this is potencial source of issues
@@ -16,13 +17,15 @@ in directory `functions` run:
 npm install || yarn
 ```
 
-##run 
+## Run: 
+
 ```javascript 
 firebase serve --only functions
 ```
 
-##deploy 
-```javascript 
+## Deploy: 
+
+```javascript
 firebase deploy --only functions
 firebase deploy --only functions:saveEvent
 ```

@@ -23,7 +23,8 @@ exports.UrlCreator = function (event, usedUrls) {
     function getUrlForSingleEvent() {
         var possibleUrl = removeSpacesAndSpecialChars(removeDiacritics(event.name).toLowerCase())
         if (urlHasDuplicates(possibleUrl)) {
-            return repairUrlForNoDuplicates(possibleUrl, event.venue.city)
+            let city = event.venue.city || event.venue.name
+            return repairUrlForNoDuplicates(possibleUrl, city)
         }
         return possibleUrl
     }
@@ -41,6 +42,7 @@ exports.UrlCreator = function (event, usedUrls) {
     }
 
     function removeDiacritics(string) {
+
         var accentModule = require('diacritics')
         return accentModule.remove(string)
     }
