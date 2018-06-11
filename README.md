@@ -38,6 +38,7 @@ eventData = {
   // Required fields
   "name" : "Event Name",
   "regFormLink" : "https://forms.google.com",
+  "created" : "2018-02-03T18:00:00.000Z",
   "dates" : {
     "end" : "2018-02-03T18:00:00.000Z",
     "isRepeatingEvent" : false,
