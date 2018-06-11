@@ -11,26 +11,26 @@ const organizerModule = require('./frontend/organizer');
 const chapterModule = require('./frontend/chapter');
 const sectionModule = require('./frontend/section');
 
-/*exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
+exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
   database.ref('chapters').once('value').then(chapters => {
     chapters.forEach(chapter => {
       database.ref('chapters/' + chapter.key + '/logo').set('https://storage.googleapis.com/gug-web.appspot.com/logos/chapter/' + chapter.key + '.png')
     })
     resp.send('OK')
   })
-}))*/
+}))
 
 
 exports.helloWorld = functions.https.onRequest(((req, resp) => resp.send({name: 'Hello World'})));
 
 
 exports.eventEvnt = functions.https.onRequest(((req, resp) => {
-  eventRef = database.ref('publishedEvents');
+  eventRef = database.ref('events');
 
 
 
-  eventRef.orderByChild('datesFilter/start').startAt((new Date()).toISOString()).orderByValue('chaptersFilter/gdg-uc-prague').equalTo(true).once('value').then(eventsSnapshot => {
-    console.log(eventsSnapshot.val())
+  eventRef.once('value').then(eventsSnapshot => {
+    console.log(eventsSnapshot.numChildren())
     resp.send(eventsSnapshot.val())})
 }));
 
@@ -155,11 +155,14 @@ exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onW
     return adminEventModule.updatePublishedEvent(afterSnapshot)
   } else {
     return null;
+
   }
 
 });
 
 exports.generateMapData = functions.database.ref('/publishedEvents/{eventId}').onWrite(() => frontendEventModule.savePublicMapOfEvents());
+
+exports.generateOrganizersList = functions.database.ref('organizers/{organizerId}').onWrite(() => organizerModule.savePublicListOfOrganizers())
 
 exports.deleteEvent = functions.https.onRequest(((req, resp) => {
   // TODO Add authentication and authorization

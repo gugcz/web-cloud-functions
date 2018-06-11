@@ -1,5 +1,5 @@
 var firebaseArray = require('../libs/firebase-array')
-
+const database = require('../libs/database').database
 // Do not use combination of query, e.g. active and profile picture
 exports.getOrganizers = function(request, response, database) {
     var organizersPromise;
@@ -46,24 +46,48 @@ exports.getOrganizers = function(request, response, database) {
 
     }
 
-    function shuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
 
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
 
-            // Pick a remaining element...
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
 
-            // And swap it with the current element.
-            temporaryValue = array[currentIndex];
-            array[currentIndex] = array[randomIndex];
-            array[randomIndex] = temporaryValue;
-        }
+}
 
-        return array;
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
+
+exports.savePublicListOfOrganizers = function () {
+  database.ref('organizers').orderByChild('profilePicture').startAt("").once('value').then(organizersSnapshot => {
+    let organizers = organizersSnapshot.val()
+
+    if (!organizers) {
+      return database.ref('public/organizers').set([])
     }
+    var organizersArray = firebaseArray.getArrayFromKeyValue(organizers)
 
+    var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(function filterOrganizerArray(organizer) {
+      return {
+        name: organizer.name,
+        profilePicture: organizer.profilePicture,
+        links: organizer.links
+      }
+    }))
 
+    return database.ref('public/organizers').set(filteredAndShuffledOrganizersArray)
+  })
 }
