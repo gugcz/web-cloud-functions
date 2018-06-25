@@ -7,3 +7,5 @@
 /functions/libs/service-account.json
 /node_modules/
 /yarn.lock
+/functions/yarn.lock
+/functions/firebase-debug.log

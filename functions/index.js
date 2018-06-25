@@ -10,6 +10,7 @@ const frontendEventModule = require('./frontend/event');
 const organizerModule = require('./frontend/organizer');
 const chapterModule = require('./frontend/chapter');
 const sectionModule = require('./frontend/section');
+const newsletterModule = require('./newsletter/newsletter');
 
 exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
   database.ref('chapters').once('value').then(chapters => {
@@ -73,6 +74,11 @@ exports.getFutureEvents = functions.https.onRequest((req, res) => {
 
 exports.getMapOfEvents = functions.https.onRequest((req, res) => {
   frontendEventModule.getMapOfEvents(req, res);
+});
+
+// Newsletter functions
+exports.getNewsletterEvents = functions.https.onRequest((req, res) => {
+  newsletterModule.getNewsletterEvents(req, res);
 });
 
 
