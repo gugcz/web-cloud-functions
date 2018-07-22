@@ -1,5 +1,7 @@
 var firebaseArray = require('../libs/firebase-array')
 const database = require('../libs/database').database
+const formatOrganizerItem = require('../libs/organizer').formatOrganizerItem
+
 // Do not use combination of query, e.g. active and profile picture
 exports.getOrganizers = function(request, response, database) {
     var organizersPromise;
@@ -34,13 +36,7 @@ exports.getOrganizers = function(request, response, database) {
         var organizersArray = firebaseArray.getArrayFromKeyValue(organizers)
 
         // TODO - Remove inactive
-        var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(function filterOrganizerArray(organizer) {
-            return {
-                name: organizer.name,
-                profilePicture: organizer.profilePicture,
-                links: organizer.links
-            }
-        }))
+      var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(formatOrganizerItem))
 
         response.send(filteredAndShuffledOrganizersArray)
 
@@ -80,13 +76,7 @@ exports.savePublicListOfOrganizers = function () {
     }
     var organizersArray = firebaseArray.getArrayFromKeyValue(organizers)
 
-    var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(function filterOrganizerArray(organizer) {
-      return {
-        name: organizer.name,
-        profilePicture: organizer.profilePicture,
-        links: organizer.links
-      }
-    }))
+    var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(formatOrganizerItem))
 
     return database.ref('public/organizers').set(filteredAndShuffledOrganizersArray)
   })
