@@ -97,10 +97,11 @@ function getFutureEventsPromise(chapterId, eventRef = database.ref(EVENTS_PATH),
 
 function getPastEventsPromise(chapterId, eventRef, request, sectionId) {
 
-
   eventRef = database.ref(EVENTS_PATH);
-  const fromDate = EventDateComparator.getDateObjectHalfYearAgo()
-  return eventRef.orderByChild(DATES_FILTER + '/start').startAt(fromDate.toISOString()).once('value');
+  const fromDateString = EventDateComparator.getDateObjectHalfYearAgo().toISOString()
+  const toDateString = (new Date()).toISOString();
+
+  return eventRef.orderByChild(DATES_FILTER + '/start').startAt(fromDateString).endAt(toDateString).once('value');
 
 }
 
