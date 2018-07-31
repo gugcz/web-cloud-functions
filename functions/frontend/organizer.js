@@ -3,7 +3,7 @@ const database = require('../libs/database').database
 const formatOrganizerItem = require('../libs/organizer').formatOrganizerItem
 
 // Do not use combination of query, e.g. active and profile picture
-exports.getOrganizers = function(request, response, database) {
+exports.getOrganizers = function (request, response) {
     var organizersPromise;
     let chapter = request.query.chapter;
     let active = request.query.active;

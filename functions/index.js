@@ -12,6 +12,7 @@ const chapterModule = require('./frontend/chapter');
 const sectionModule = require('./frontend/section');
 const newsletterModule = require('./newsletter/newsletter');
 
+/*
 exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
   database.ref('chapters').once('value').then(chapters => {
     chapters.forEach(chapter => {
@@ -20,66 +21,28 @@ exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
     resp.send('OK')
   })
 }))
-
-
-exports.helloWorld = functions.https.onRequest(((req, resp) => resp.send({name: 'Hello World'})));
-
-
-exports.eventEvnt = functions.https.onRequest(((req, resp) => {
-  eventRef = database.ref('events');
-
-
-
-  eventRef.once('value').then(eventsSnapshot => {
-    console.log(eventsSnapshot.numChildren())
-    resp.send(eventsSnapshot.val())})
-}));
+*/
 
 
 // Organizers functions
-exports.getOrganizers = functions.https.onRequest((req, res) => {
-  organizerModule.getOrganizers(req, res, database);
-});
+exports.getOrganizers = functions.https.onRequest(organizerModule.getOrganizers);
 
 // Chapter functions
-exports.getChapter = functions.https.onRequest((req, res) => {
-  chapterModule.getChapter(req, res, database);
-});
-exports.getChapters = functions.https.onRequest((req, res) => {
-  chapterModule.getChapters(req, res, database);
-});
-
+exports.getChapter = functions.https.onRequest(chapterModule.getChapter);
+exports.getChapters = functions.https.onRequest(chapterModule.getChapters);
 
 // Sections functions
-exports.getSections = functions.https.onRequest((req, res) => {
-  sectionModule.getSections(req, res, database);
-});
-
-exports.getSection = functions.https.onRequest((req, res) => {
-  sectionModule.getSection(req, res, database);
-});
+exports.getSections = functions.https.onRequest(sectionModule.getSections);
+exports.getSection = functions.https.onRequest(sectionModule.getSection);
 
 // Event functions
-exports.getEvent = functions.https.onRequest((req, res) => {
-  frontendEventModule.getEvent(req, res);
-});
-
-exports.getPastSixEvents = functions.https.onRequest((req, res) => {
-  frontendEventModule.getPastSixEvents(req, res);
-});
-
-exports.getFutureEvents = functions.https.onRequest((req, res) => {
-  frontendEventModule.getFutureEvents(req, res);
-});
-
-exports.getMapOfEvents = functions.https.onRequest((req, res) => {
-  frontendEventModule.getMapOfEvents(req, res);
-});
+exports.getEvent = functions.https.onRequest(frontendEventModule.getEvent);
+exports.getPastSixEvents = functions.https.onRequest(frontendEventModule.getPastSixEvents);
+exports.getFutureEvents = functions.https.onRequest(frontendEventModule.getFutureEvents);
+exports.getMapOfEvents = functions.https.onRequest(frontendEventModule.getMapOfEvents);
 
 // Newsletter functions
-exports.getNewsletterEvents = functions.https.onRequest((req, res) => {
-  newsletterModule.getNewsletterEvents(req, res);
-});
+exports.getNewsletterEvents = functions.https.onRequest(newsletterModule.getNewsletterEvents);
 
 
 /**

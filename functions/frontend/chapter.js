@@ -2,7 +2,7 @@ const chapterLib = require('../libs/chapter')
 const firebaseArrayLib = require('../libs/firebase-array')
 const database = require('../libs/database').database;
 
-exports.getChapter = function (request, response, database) {
+exports.getChapter = function (request, response) {
   let chapterId = request.query.id;
 
   if (!chapterId) {
@@ -14,7 +14,7 @@ exports.getChapter = function (request, response, database) {
   );
 }
 
-exports.getChapters = function (request, response, database) {
+exports.getChapters = function (request, response) {
   let section = request.query.section;
 
     if (!section) {
