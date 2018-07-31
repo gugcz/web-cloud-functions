@@ -8,13 +8,19 @@ const file = require('../libs/file');
 
 exports.saveEvent = function(req, res) {
 
+  // TODO - Update event with ID
   const eventData = req.body.eventData;
   //console.log('Event data', eventData)
   return database.ref('events').push(eventData).then(res.send('Event saved'))
 
 };
 
-exports.deleteEvent = function(eventId) {
+exports.deleteEvent = function (req, res) {
+  const eventId = req.query.id;
+  if (!eventId) {
+    res.sendStatus(404)
+  }
+
   let eventRef = database.ref('events/' + eventId);
   return eventRef.remove()
 };
