@@ -68,15 +68,15 @@ function shuffle(array) {
 
 
 exports.savePublicListOfOrganizers = function () {
-  database.ref('organizers').orderByChild('profilePicture').startAt("").once('value').then(organizersSnapshot => {
+  return database.ref('organizers').orderByChild('profilePicture').startAt("").once('value').then(organizersSnapshot => {
     let organizers = organizersSnapshot.val()
 
     if (!organizers) {
       return database.ref('public/organizers').set([])
     }
-    var organizersArray = firebaseArray.getArrayFromKeyValue(organizers)
+    let organizersArray = firebaseArray.getArrayFromKeyValue(organizers);
 
-    var filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(formatOrganizerItem))
+    let filteredAndShuffledOrganizersArray = shuffle(organizersArray.map(formatOrganizerItem));
 
     return database.ref('public/organizers').set(filteredAndShuffledOrganizersArray)
   })
