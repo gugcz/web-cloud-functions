@@ -1,17 +1,4 @@
 const functions = require('firebase-functions');
-const database = require('./libs/database').database;
-const admin = require('firebase-admin');
-const authModule = require('./libs/auth');
-
-
-/**
- * Frontend functions
- */
-const frontendEventModule = require('./frontend/event');
-const organizerModule = require('./frontend/organizer');
-const chapterModule = require('./frontend/chapter');
-const sectionModule = require('./frontend/section');
-const newsletterModule = require('./newsletter/newsletter');
 
 /*
 exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
@@ -24,6 +11,14 @@ exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
 }))
 */
 
+/**
+ * Frontend functions
+ */
+const frontendEventModule = require('./frontend/event');
+const organizerModule = require('./frontend/organizer');
+const chapterModule = require('./frontend/chapter');
+const sectionModule = require('./frontend/section');
+const newsletterModule = require('./newsletter/newsletter');
 
 // Organizers functions
 exports.getOrganizers = functions.https.onRequest(organizerModule.getOrganizers);
@@ -42,6 +37,10 @@ exports.getPastSixEvents = functions.https.onRequest(frontendEventModule.getPast
 exports.getFutureEvents = functions.https.onRequest(frontendEventModule.getFutureEvents);
 exports.getMapOfEvents = functions.https.onRequest(frontendEventModule.getMapOfEvents);
 
+// Public data generators
+exports.generateMapData = functions.database.ref('/publishedEvents/{eventId}').onWrite(frontendEventModule.savePublicMapOfEvents);
+exports.generateOrganizersList = functions.database.ref('organizers/{organizerId}').onWrite(organizerModule.savePublicListOfOrganizers);
+
 // Newsletter functions
 exports.getNewsletterEvents = functions.https.onRequest(newsletterModule.getNewsletterEvents);
 
@@ -50,6 +49,7 @@ exports.getNewsletterEvents = functions.https.onRequest(newsletterModule.getNews
  * Admin functions
  */
 const adminEventModule = require('./admin/event');
+const authModule = require('./libs/auth');
 
 
 exports.saveEvent = functions.https.onRequest(((req, resp) => {
@@ -60,6 +60,7 @@ exports.deleteEvent = functions.https.onRequest(((req, resp) => {
   authModule.validateFirebaseToken(req, resp, adminEventModule.deleteEvent)
 }));
 
+// Extract into admin event module
 function publishedEventWasUpdated(eventSnapshot) {
   return eventSnapshot.val().published && eventSnapshot.val().publishedEventId;
 
@@ -104,9 +105,4 @@ exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onW
   }
 
 });
-
-exports.generateMapData = functions.database.ref('/publishedEvents/{eventId}').onWrite(() => frontendEventModule.savePublicMapOfEvents());
-
-exports.generateOrganizersList = functions.database.ref('organizers/{organizerId}').onWrite(() => organizerModule.savePublicListOfOrganizers())
-
 
