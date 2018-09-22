@@ -91,8 +91,8 @@ function getEventsPromise(chapterId, eventRef, request, sectionId) {
 }
 
 
-function getFutureEventsPromise(chapterId, eventRef = database.ref(EVENTS_PATH), request, sectionId) {
-  return eventRef.orderByChild(DATES_FILTER + '/start').startAt((new Date()).toISOString()).once('value');
+function getFutureEventsPromise() {
+  return database.ref(EVENTS_PATH).orderByChild(DATES_FILTER + '/start').startAt((new Date()).toISOString()).once('value');
 }
 
 function getPastEventsPromise(chapterId, eventRef, request, sectionId) {
@@ -119,11 +119,39 @@ exports.getFutureEvents = function (request, response) {
       response.send([])
     }
     else {
-      let sortedFutureEventsArray = futureEventsArray;
+      let sortedFutureEventsArray = futureEventsArray.sort(EventDateComparator.sortEventsByDateFuture)
       response.send(sortedFutureEventsArray.slice(0, 1).concat(sortedFutureEventsArray.slice(1).map(EventDataFormatter.eventCardMap)))
     }
   })
 };
+
+exports.getEventsStats = function (req, resp) {
+  const organizerId = req.query.org;
+  const chapterId = req.query.chapter;
+  const monthCount = req.query.monthCount;
+  let eventPromise = database.ref('events/');
+
+
+  if (organizerId) {
+    eventPromise = eventPromise.orderByChild('organizers/' + organizerId).equalTo(true);
+  }
+  else if (chapterId) {
+    eventPromise = eventPromise.orderByChild('chapters/' + chapterId).equalTo(true);
+  }
+
+  eventPromise.once('value').then(eventsSnapshot => {
+    let events = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val()).filter(event => EventDateComparator.isPastEventForMonthCountAdmin(event, monthCount));
+
+    resp.send(generateStatsFromEvents(events))
+  })
+};
+
+function generateStatsFromEvents(events) {
+  return {
+    count: events.length,
+    attendeesCount: events.reduce((count, event) => count + (event.report.attendeesCount || 0), 0)
+  }
+}
 
 
 

@@ -1,6 +1,8 @@
 const EventDateFormatter = require('../libs/date/date-formatter')
 const EventDateComparator = require('../libs/date/date-comparator')
 
+const momentTimezone = require('moment-timezone');
+
 var dates;
 
 
@@ -14,6 +16,10 @@ describe("A EventDateFormatter for single-day event", function () {
     }
   });
 
+
+  it("transform date string to string in format DD.MM.YYYY", function () {
+    expect(getTimezoneString("2017-09-02T16:00:00.000", "Europe/Prague")).toBe("3.9.2017")
+  })
 
   it("transform date string to string in format DD.MM.YYYY", function () {
     expect(EventDateFormatter.getDate(dates)).toBe("3.9.2017")
@@ -65,6 +71,39 @@ describe("A EventDateComparator -", function () {
         }
       }
       expect(EventDateComparator.isPastEvent(event)).toEqual(true)
+    })
+
+    it("compares event date and return false for future event", function () {
+      var event = {
+        datesFilter: {
+
+          // TODO Generate date next year programmatically
+          start: '2018-09-02T16:00:00.000Z' // Event date is next year
+        }
+      }
+      expect(EventDateComparator.isPastEvent(event)).toEqual(false)
+    })
+
+
+  })
+
+  describe("isPastEventForMonthCount", function () {
+    it("compares event date and return true for past event last month", function () {
+      var event = {
+        datesFilter: {
+          start: '2017-09-02T16:00:00.000Z'
+        }
+      }
+      expect(EventDateComparator.isPastEvent(event)).toEqual(true)
+    })
+
+    it("compares event date and return false for past event year ago", function () {
+      var event = {
+        datesFilter: {
+          start: '2017-09-02T16:00:00.000Z'
+        }
+      }
+      expect(EventDateComparator.isPastEventForMonthCount(event, 12)).toEqual(false)
     })
 
     it("compares event date and return false for future event", function () {
