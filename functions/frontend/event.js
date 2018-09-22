@@ -42,7 +42,7 @@ exports.getMapOfEvents = function (request, response) {
 function getMapDataFromSnapshot(eventsSnapshot) {
   if (eventsSnapshot.numChildren() !== 0) {
     const futureEventsArray = firebaseArray.getArrayFromKeyValue(eventsSnapshot.val());
-    return futureEventsArray.map(EventDataFormatter.eventMarkerMap);
+    return futureEventsArray.sort(EventDateComparator.sortEventsByDateFuture).map(EventDataFormatter.eventMarkerMap);
   }
   return []
 }
