@@ -114,3 +114,49 @@ exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onW
 
 });
 
+const request = require('request')
+
+function transformDataIntoReport(snaphsot) {
+  let eventData = snaphsot.val()
+
+  return `*${eventData.name.toUpperCase()}*\n` +
+    `*Počet účastníků: ${eventData.report.attendeesCount}`
+}
+
+function getReportText(report, eventId) {
+
+  return database.ref('events/' + eventId).once('value').then(transformDataIntoReport);
+}
+
+function getStringFromArray(item) {
+  return item.map(item => item.name).join(', ');
+}
+
+exports.sendReportToSlack = functions.database.ref('/events/{eventId}/report').onWrite((change, context) => {
+
+  const report = change.after.val();
+
+  // TODO - Hide secret part of url
+  //const text = getReportText(context.params.eventId);
+
+  return database.ref('events/' + context.params.eventId).once('value').then(snapshot => {
+    let fakeRequest = {query: {id: snapshot.val().publishedEventId}}
+    let fakeResponse = {
+      send: function (event) {
+        let reportMessage = `*${event.name.toUpperCase()}*\n` +
+          `*Počet účastníků:* ${report.attendeesCount}\n` +
+          `*Organizátoři:* ${getStringFromArray(event.organizers)}\n` +
+          `*Chaptery:* ${getStringFromArray(event.chapters)}\n`
+        ;
+
+        return request.post('https://hooks.slack.com/services/', {json: {text: reportMessage}})
+      }
+    }
+    return frontendEventModule.getEvent(fakeRequest, fakeResponse)
+
+  })
+
+
+
+});
+
