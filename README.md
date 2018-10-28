@@ -17,6 +17,13 @@ in directory `functions` run:
 npm install || yarn
 ```
 
+## Configuration:
+In directory `functions` create file `config.js` and put this line for posting to slack:
+
+```
+exports.slackPostingUrl = 'https://hooks.slack.com/services/.../.../...';
+``` 
+
 ## Run: 
 
 ```javascript 
