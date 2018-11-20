@@ -92,6 +92,8 @@ function dataWasNotChangedByUser(after, before) {
 
 exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onWrite((change, context) => {
 
+  console.log(afterSnapshot.val().name + '(' + context.params.eventId + ')');
+
   const afterSnapshot = change.after;
   const beforeSnapshot = change.before;
 
@@ -103,6 +105,7 @@ exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onW
     // Snapshot data are null
     return adminEventModule.deletePublishedEvent(change.before)
   } else if (eventWasPublished(afterSnapshot)) {
+    console.log('Publishing')
     return adminEventModule.publishEvent(afterSnapshot);
   } else if (publishedEventWasUnpublished(afterSnapshot)) {
     return adminEventModule.unpublishEvent(afterSnapshot);
