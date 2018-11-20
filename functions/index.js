@@ -92,10 +92,13 @@ function dataWasNotChangedByUser(after, before) {
 
 exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onWrite((change, context) => {
 
-  console.log(afterSnapshot.val().name + '(' + context.params.eventId + ')');
 
   const afterSnapshot = change.after;
   const beforeSnapshot = change.before;
+
+
+  console.log(afterSnapshot.val().name + '(' + context.params.eventId + ')');
+  console.log(afterSnapshot.val());
 
   if (dataWasNotChangedByUser(afterSnapshot, beforeSnapshot)) {
     return null;
