@@ -3,25 +3,43 @@ const slackPostingUrl = require('../config').slackPostingUrl;
 const database = require('../libs/database').database;
 const request = require('request')
 
-exports.sendReportToSlack = function (change, context) {
-  const report = change.after.val();
+exports.sendReportToSlack = function (snapshot, context) {
+  const report = snapshot.val();
 
-  // TODO - How to pass report var to callback function
-  function callFrontendGetEventWithSlackPostingCallback(snapshot) {
+  let eventId = context.params.eventId;
+  let deleteSlackBoolean = database.ref('events/' + eventId + '/report/sendToSlack').remove();
 
-    let fakeRequest = {query: {id: snapshot.val().publishedEventId}}
-    let fakeResponse = {
-      send: function (event) {
-
-        return request.post(slackPostingUrl, {json: {text: getReportMessage(event, report)}})
-      }
-    }
-
-    return frontendEventModule.getEvent(fakeRequest, fakeResponse)
+  if (report.sendToSlack) {
+    return Promise.all([getEventDataAndPostReport(eventId, report), deleteSlackBoolean])
   }
-
-  return getEventPromise(context.params.eventId).then(callFrontendGetEventWithSlackPostingCallback)
+  else {
+    return deleteSlackBoolean
+  }
 }
+
+function getFakeRequest(eventSnapshot) {
+  return {query: {id: eventSnapshot.val().publishedEventId}};
+}
+
+function getSlackPostingResponse(report) {
+  return {
+    send: function (event) {
+      return request.post(slackPostingUrl, {json: {text: getReportMessage(event, report)}});
+    }
+  };
+}
+
+function getEventDataAndPostReport(eventId, report) {
+  return getEventPromise(eventId).then(eventSnapshot => {
+
+    // TODO - Rewrite into normal promise with data
+    let fakeRequest = getFakeRequest(eventSnapshot);
+    let slackPostingResponse = getSlackPostingResponse(report);
+
+    return frontendEventModule.getEvent(fakeRequest, slackPostingResponse)
+  });
+}
+
 
 function getEventPromise(eventId) {
   return database.ref('events/' + eventId).once('value')

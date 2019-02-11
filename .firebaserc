@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "gug-web"
+    "prod": "gug-web",
+    "dev": "gug-web-test"
   }
 }
 

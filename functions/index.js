@@ -1,30 +1,16 @@
 const functions = require('firebase-functions');
 
 const database = require('./libs/database').database
+
 exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
-  const moment = require('moment');
+  // published ma url a druhy ma url-city
+  // chceme zachovat ten s obrázkem s kratší url a co je registrovan u rootu
   const firebaseArray = require('./libs/firebase-array')
 
-  const year = 2018;
-  const month = 1;
+  //database.ref('events').orderByChild('name').equalTo('Procesy všude, kam se podíváš').once('value').then(snapshot => resp.send(snapshot.val()))
 
-  const startDate = moment([year, month - 1]);
-  const endDate = startDate.clone().add(12, 'month');
-
-  let eventPromise = database.ref('events')
-    .orderByChild('dates/start')
-    .startAt(startDate.toISOString())
-    .endAt(endDate.toISOString())
-    .once('value')
-
-  eventPromise.then(snapshot => {
-    let events = firebaseArray.getArrayFromKeyValue(snapshot.val())
-    const length = events.length;
-    const attendees = events.filter(event => event.report).reduce(((attendees, event) => attendees + event.report.attendeesCount), 0);
-    const organizers = [...new Set(events.map(events => firebaseArray.getArrayFromIdList(events.organizers)).reduce((result, orgArray) => result.concat(orgArray)))].length
-    //resp.send(organizers)
-    resp.send('Events: ' + length + '\nAttendees: ' + attendees + '\nOrganizers: ' + organizers);
-  })
+  //database.ref('events/-LWuyHP7fwJnGsp5o-J4/published').set(false).then(() => resp.send('OK'))
+  //database.ref('publishedEvents/procesy-vsude-kam-se-podivas').remove().then(() => resp.send('OK'))
 }))
 
 /**
@@ -134,5 +120,8 @@ exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onW
 
 });
 
-exports.sendReportToSlack = functions.database.ref('/events/{eventId}/report').onWrite(adminReportModule.sendReportToSlack);
+
+exports.sendReportToSlack = functions.database.ref('/events/{eventId}/report').onCreate(adminReportModule.sendReportToSlack);
+
+exports.getStatsForYear = functions.https.onRequest(require('./admin/stats').getStatsForYear)
 
