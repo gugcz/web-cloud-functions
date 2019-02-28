@@ -1,8 +1,7 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 let EventDateFormatter = function (dates) {
-  dates.start = new Date(dates.start)
-
-  dates.end = new Date(dates.end)
+  dates.start = new Date(dates.start);
+  dates.end = new Date(dates.end);
 
   function isMultiDayEvent(dates) {
     return !moment(dates.start).isSame(dates.end, 'day');
@@ -21,8 +20,7 @@ let EventDateFormatter = function (dates) {
   }
 
   function getTime(date) {
-
-    return moment(date).format('HH:mm')
+    return moment(date).tz('Europe/Prague').format('HH:mm')
   }
 
   this.getTime = function () {

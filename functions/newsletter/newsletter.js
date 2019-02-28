@@ -1,6 +1,7 @@
 const moment = require('moment');
 const database = require('../libs/database').database;
 const firebaseArray = require('../libs/firebase-array');
+const EventDateFormatter = require('../libs/date/date-formatter');
 
 const EVENT_LINK_PREFIX = "https://gug.cz/event/";
 
@@ -37,7 +38,7 @@ function createNewsletterEvent(event, chapters) {
   return {
     name: event.name,
     date: event.dates.date,
-    time: event.dates.time,
+    time: EventDateFormatter.getTime(event.datesFilter),
     url: EVENT_LINK_PREFIX + event.urlId,
     groupShortcut: chapter.section,
     city: chapter.location
