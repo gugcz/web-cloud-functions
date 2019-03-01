@@ -37,8 +37,9 @@ function createNewsletterEvent(event, chapters) {
 
   return {
     name: event.name,
-    date: event.dates.date,
+    date: EventDateFormatter.getStartDate(event.datesFilter),
     time: EventDateFormatter.getTime(event.datesFilter),
+    multiDayDateAndTime: event.dates.datesAndTimes,
     url: EVENT_LINK_PREFIX + event.urlId,
     groupShortcut: chapter.section,
     city: chapter.location

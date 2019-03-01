@@ -41,6 +41,10 @@ let EventDateFormatter = function (dates) {
     }
   }
 
+  this.getStartDate = function () {
+      return getDate(dates.start)
+  }
+
   this.getDateWithoutYear = function () {
     return dates.start.getDate() + '.' + (dates.start.getMonth() + 1) + '.';
   }
@@ -78,6 +82,11 @@ exports.getDate = function(dates) {
   return dateFormatter.getDate();
 }
 
+exports.getStartDate = function(dates) {
+  let dateFormatter = new EventDateFormatter(dates);
+  return dateFormatter.getStartDate();
+}
+
 exports.getDateWithoutYear = function(dates) {
   let dateFormatter = new EventDateFormatter(dates);
   return dateFormatter.getDateWithoutYear();
@@ -87,4 +96,6 @@ exports.getTime = function(dates) {
   let dateFormatter = new EventDateFormatter(dates);
   return dateFormatter.getTime();
 }
+
+
 
