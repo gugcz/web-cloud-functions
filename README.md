@@ -26,13 +26,17 @@ exports.slackPostingUrl = 'https://hooks.slack.com/services/.../.../...';
 
 ## Run: 
 
-```javascript 
+``` 
+firebase use dev
+```
+``` 
 firebase serve --only functions
 ```
 
 ## Deploy: 
 
-```javascript
+```
+firebase use prod
 firebase deploy --only functions
 firebase deploy --only functions:saveEvent
 ```

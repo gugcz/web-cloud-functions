@@ -2,11 +2,11 @@ const UrlCreator = require('../libs/url').UrlCreator;
 const database = require('../libs/database').database;
 
 const EventDataFormatter = require('../libs/event/event');
+const firebaseArray = require('../libs/firebase-array')
 const file = require('../libs/file');
 
 
-
-exports.saveEvent = function(req, res) {
+exports.saveEvent = function (req, res) {
 
   // TODO - Update event with ID
   const eventData = req.body.eventData;
@@ -25,47 +25,60 @@ exports.deleteEvent = function (req, res) {
   return eventRef.remove()
 };
 
-exports.publishEvent = function(eventSnapshot) {
-  let eventData = eventSnapshot.val();
-  let eventId = eventSnapshot.key;
+exports.publishEvent = function (req, res) {
+  let eventId = req.query.eventId;
   let usedUrls = [];
 
-  return database.ref('publishedEvents').once('value').then(eventsSnapshot => {
-    if (arraySnapshotIsNotEmpty(eventsSnapshot)) {
+  database.ref('events/' + eventId).once('value').then(eventSnapshot => {
+    let eventData = eventSnapshot.val();
 
-      Array.prototype.push.apply(usedUrls, Object.keys(eventsSnapshot.val())); // Merge arrays
-    }
+    database.ref('publishedEvents').once('value').then(eventsSnapshot => {
+      if (arraySnapshotIsNotEmpty(eventsSnapshot)) {
 
-    let publishedEventUrl = new UrlCreator(eventData, usedUrls).getUrl();
-    return publishEventPromise(eventData, publishedEventUrl, [getPublishedEventIdPropertyInEventRef(eventId).set(publishedEventUrl)]);
+        Array.prototype.push.apply(usedUrls, Object.keys(eventsSnapshot.val())); // Merge arrays
+      }
 
-  })
+      let publishedEventUrl = new UrlCreator(eventData, usedUrls).getUrl();
+      publishEventPromise(eventData, publishedEventUrl, [getPublishedEventIdPropertyInEventRef(eventId).set(publishedEventUrl)]).then(() => {
+        res.send('Published')
+      });
+
+    })
+  });
 
 };
 
-exports.unpublishEvent = function(eventSnapshot) {
-  let publishedEventId = eventSnapshot.val().publishedEventId;
-  let eventId = eventSnapshot.key;
-  return Promise.all([getPublishedEventRef(publishedEventId).remove(), getPublishedEventIdPropertyInEventRef(eventId).remove()])
+exports.unpublishEvent = function (req, res) {
+  console.log("called");
+  let eventId = req.query.eventId;
+
+  database.ref('events/' + eventId).once('value').then(eventSnapshot => {
+    let eventData = eventSnapshot.val();
+
+    let publishedEventId = eventData.publishedEventId;
+    Promise.all([getPublishedEventRef(publishedEventId).remove(), getPublishedEventIdPropertyInEventRef(eventId).remove()]).then(() => {
+      res.send('Unpublished')
+    })
+  });
 };
 
-exports.updatePublishedEvent = function(eventSnapshot) {
-  let eventData = eventSnapshot.val();
-  let publishedEventUrl = eventData.publishedEventId;
+exports.updatePublishedEvent = function (req, res) {
+  let eventId = req.query.eventId;
 
-  return publishEventPromise(eventData, publishedEventUrl, []);
+  database.ref('events/' + eventId).once('value').then(eventSnapshot => {
+    let eventData = eventSnapshot.val();
+
+    let publishedEventId = eventData.publishedEventId;
+    publishEventPromise(eventData, publishedEventId, []).then(() => {
+      res.send('Updated')
+    })
+  });
 };
 
-
-exports.deletePublishedEvent = function(eventSnapshot) {
-  let publishedEventId = eventSnapshot.val().publishedEventId;
-  return getPublishedEventRef(publishedEventId).remove()
-};
 
 function arraySnapshotIsNotEmpty(eventsSnapshot) {
   return eventsSnapshot.val() !== null;
 }
-
 
 
 function publishEventPromise(eventData, publishedEventUrl, promisesToAdd) {
@@ -82,9 +95,6 @@ function publishEventPromise(eventData, publishedEventUrl, promisesToAdd) {
 function getPublishedEventIdPropertyInEventRef(eventId) {
   return database.ref('events/' + eventId + '/publishedEventId');
 }
-
-
-
 
 
 function getPublishedEventRef(publishedEventId) {

@@ -1,4 +1,5 @@
 const functions = require('firebase-functions');
+const cors = require('cors')({origin: true});
 
 const database = require('./libs/database').database
 
@@ -57,69 +58,39 @@ const authModule = require('./libs/auth');
 const adminOrganizerModule = require('./admin/organizer');
 
 
-exports.saveEvent = functions.https.onRequest(((req, resp) => {
-  authModule.validateFirebaseToken(req, resp, adminEventModule.saveEvent)
-}));
-
-exports.deleteEvent = functions.https.onRequest(((req, resp) => {
-  authModule.validateFirebaseToken(req, resp, adminEventModule.deleteEvent)
-}));
-
-//exports.getInactiveOrganizers = functions.https.onRequest(adminOrganizerModule.getInactiveOrganizers);
-
-// Extract into admin event module
-function publishedEventWasUpdated(eventSnapshot) {
-  return eventSnapshot.val().published && eventSnapshot.val().publishedEventId;
-
-}
-function eventWasPublished(eventSnapshot) {
-  return eventSnapshot.val().published && !eventSnapshot.val().publishedEventId;
-
-}
-function publishedEventWasUnpublished(eventSnapshot) {
-  return !eventSnapshot.val().published && eventSnapshot.val().publishedEventId;
-
-}
-function eventWasDeleted(eventSnapshot) {
-  return !eventSnapshot.exists();
-
-}
-function dataWasNotChangedByUser(after, before) {
-  return !eventWasDeleted(after) && (after.child('publishedEventId').val() !== before.child('publishedEventId').val());
-
-}
-
-exports.publishEventAutoRunner = functions.database.ref('/events/{eventId}').onWrite((change, context) => {
-
-
-  const afterSnapshot = change.after;
-  const beforeSnapshot = change.before;
-
-
-  console.log(afterSnapshot.val().name + '(' + context.params.eventId + ')');
-  console.log(afterSnapshot.val());
-
-  if (dataWasNotChangedByUser(afterSnapshot, beforeSnapshot)) {
-    return null;
-  }
-
-  if (eventWasDeleted(afterSnapshot)) {
-    // Snapshot data are null
-    return adminEventModule.deletePublishedEvent(change.before)
-  } else if (eventWasPublished(afterSnapshot)) {
-    console.log('Publishing')
-    return adminEventModule.publishEvent(afterSnapshot);
-  } else if (publishedEventWasUnpublished(afterSnapshot)) {
-    return adminEventModule.unpublishEvent(afterSnapshot);
-  } else if (publishedEventWasUpdated(afterSnapshot)) {
-    return adminEventModule.updatePublishedEvent(afterSnapshot)
-  } else {
-    return null;
-
-  }
-
+exports.saveEvent = functions.https.onRequest((req, resp) => {
+  cors(req, resp, () => {
+    authModule.validateFirebaseToken(req, resp, adminEventModule.saveEvent)
+  });
 });
 
+exports.deleteEvent = functions.https.onRequest((req, resp) => {
+  cors(req, resp, () => {
+    authModule.validateFirebaseToken(req, resp, adminEventModule.deleteEvent)
+  });
+});
+
+exports.publishEvent = functions.https.onRequest((req, resp) => {
+  cors(req, resp, () => {
+    authModule.validateFirebaseToken(req, resp, adminEventModule.publishEvent);
+  })
+});
+
+exports.unpublishEvent = functions.https.onRequest((req, resp) => {
+  cors(req, resp, () => {
+    authModule.validateFirebaseToken(req, resp, adminEventModule.unpublishEvent);
+  });
+});
+
+
+exports.updatePublishedEvent = functions.https.onRequest((req, resp) => {
+  cors(req, resp, () => {
+    authModule.validateFirebaseToken(req, resp, adminEventModule.updatePublishedEvent);
+  });
+});
+
+
+//exports.getInactiveOrganizers = functions.https.onRequest(adminOrganizerModule.getInactiveOrganizers);
 
 exports.sendReportToSlack = functions.database.ref('/events/{eventId}/report').onCreate(adminReportModule.sendReportToSlack);
 
