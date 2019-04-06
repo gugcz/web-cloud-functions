@@ -134,4 +134,4 @@ Event has to be published!
 
 **Params:**
 
-- **eventId:** ID of event which will be unpublished
+- **eventId:** ID of published event which will be updated
