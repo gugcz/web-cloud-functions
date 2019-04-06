@@ -41,57 +41,97 @@ firebase deploy --only functions
 firebase deploy --only functions:saveEvent
 ```
 
-### Save Event Function:
+## API
+### Save Event:
+It will always create new event! 
 
-There is a structure which is needed for save event function as part of body `eventData` : 
+**URL:** [https://us-central1-gug-web.cloudfunctions.net/saveEvent]
+
+**Auth:** Bearer token
+
+**Body:** 
+
 ```javascript
-eventData = {
-  // Required fields
-  "name" : "Event Name",
-  "regFormLink" : "https://forms.google.com",
-  "created" : "2018-02-03T18:00:00.000Z",
-  "dates" : {
-    "end" : "2018-02-03T18:00:00.000Z",
-    "isRepeatingEvent" : false,
-    "start" : "2018-02-03T16:00:00.000Z"
-  },
-  "venue" : {
-      "address" : "Venue Address",
-      "city" : "Venue City",
-      "coordinates" : {
-        "lat" : 10.0,
-        "lng" : 10.0
+{
+    "eventData": {
+      // Required fields
+      "name" : "Event Name",
+      "regFormLink" : "https://forms.google.com",
+      "created" : "2018-02-03T18:00:00.000Z",
+      "dates" : {
+        "end" : "2018-02-03T18:00:00.000Z",
+        "isRepeatingEvent" : false,
+        "start" : "2018-02-03T16:00:00.000Z"
       },
-      "howTo" : "", // Optional
-      "mapUrl" : "https://maps.google.com/",
-      "name" : "Venue Name"
-    },
-  "chapters" : {
-      "chapterId" : true,
-      "chapterId..." : true
-    },
-  "organizers" : {
-      "orgId" : true,
-      "orgId..." : true
-  },
-  "guarantee" : "orgId", // Guarantee have to be also in organizers list
-  "published" : true,
-  
-  // Optional fields
-  "subtitle" : "Event Subtitle",
-  "description" : "Event Desciption (can be markdown)",
-  "cover" : "https://cover-url.com",
-  "links" : [ {
-      "type" : "facebook",
-      "url" : "facebook.com"
-    }, {
-      "type" : "meetup",
-      "url" : "meetup.com"
-    }, {
-      "type" : "google-plus",
-      "url" : "plus.google.com"
-    } ]
-  
+      "venue" : {
+          "address" : "Venue Address",
+          "city" : "Venue City",
+          "coordinates" : {
+            "lat" : 10.0,
+            "lng" : 10.0
+          },
+          "howTo" : "", // Optional
+          "mapUrl" : "https://maps.google.com/",
+          "name" : "Venue Name"
+        },
+      "chapters" : {
+          "chapterId" : true,
+          "chapterId..." : true
+        },
+      "organizers" : {
+          "orgId" : true,
+          "orgId..." : true
+      },
+      "guarantee" : "orgId", // Guarantee have to be also in organizers list
+      "published" : true,
+      
+      // Optional fields
+      "subtitle" : "Event Subtitle",
+      "description" : "Event Desciption (can be markdown)",
+      "cover" : "https://cover-url.com",
+      "links" : [ {
+          "type" : "facebook",
+          "url" : "facebook.com"
+        }, {
+          "type" : "meetup",
+          "url" : "meetup.com"
+        }, {
+          "type" : "google-plus",
+          "url" : "plus.google.com"
+        } ]
+      
+    }
 }
 
 ```
+
+### Publish Event:
+
+**URL:** [https://us-central1-gug-web.cloudfunctions.net/publishEvent]
+
+**Auth:** Bearer token
+
+**Params:**
+
+- **eventId:** ID of event which will be published
+
+### Unpublish Event:
+
+**URL:** [https://us-central1-gug-web.cloudfunctions.net/unpublishEvent]
+
+**Auth:** Bearer token
+
+**Params:**
+
+- **eventId:** ID of event which will be unpublished
+
+### Update Published Event:
+Event has to be published!
+
+**URL:** [https://us-central1-gug-web.cloudfunctions.net/updatePublishedEvent]
+
+**Auth:** Bearer token
+
+**Params:**
+
+- **eventId:** ID of event which will be unpublished
