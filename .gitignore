@@ -9,3 +9,4 @@
 /yarn.lock
 /functions/yarn.lock
 /functions/firebase-debug.log
+/functions/config.js

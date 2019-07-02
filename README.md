@@ -7,9 +7,10 @@ Recomended NODE version: v6.11.5.
 StillWorking node version: v8.9.4
 - this is potencial source of issues
 
-install/update firebase-tools globally
+install/update firebase-tools globally and login
 ```javascript
 npm install -g firebase-tools
+firebase login
 ```
 
 in directory `functions` run: 
@@ -18,7 +19,7 @@ npm install || yarn
 ```
 
 ## Configuration:
-In directory `functions` create file `config.js` and put this line for posting to slack:
+In directory `functions` create file `config.js` and put this line for posting to slack with URL from GUG.cz Slack Dev Tools (please do not commit this file):
 
 ```
 exports.slackPostingUrl = 'https://hooks.slack.com/services/.../.../...';
@@ -34,6 +35,8 @@ firebase serve --only functions
 ```
 
 ## Deploy: 
+
+Make sure you have correct URL in `config.js`
 
 ```
 firebase use prod
