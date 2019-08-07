@@ -6,7 +6,7 @@ const database = require('./libs/database').database
 exports.temporaryFunction = functions.https.onRequest(((req, resp) => {
   // published ma url a druhy ma url-city
   // chceme zachovat ten s obrázkem s kratší url a co je registrovan u rootu
-  const firebaseArray = require('./libs/firebase-array')
+  //const firebaseArray = require('./libs/firebase-array')
 
   //database.ref('events').orderByChild('name').equalTo('Procesy všude, kam se podíváš').once('value').then(snapshot => resp.send(snapshot.val()))
 

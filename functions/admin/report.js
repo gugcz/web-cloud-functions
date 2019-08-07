@@ -1,7 +1,8 @@
+const functions = require('firebase-functions');
 const frontendEventModule = require('../frontend/event');
-const slackPostingUrl = require('../config').slackPostingUrl;
+const slackPostingUrl = functions.config().slack.report_url;
 const database = require('../libs/database').database;
-const request = require('request')
+const request = require('request');
 
 exports.sendReportToSlack = function (snapshot, context) {
   const report = snapshot.val();
