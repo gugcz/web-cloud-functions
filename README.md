@@ -3,10 +3,6 @@ Firebase Cloud Functions for GUG.cz presentation web
 
 ## Install: 
 
-Recomended NODE version: v6.11.5.
-StillWorking node version: v8.9.4
-- this is potencial source of issues
-
 install/update firebase-tools globally and login
 ```javascript
 npm install -g firebase-tools
@@ -19,11 +15,7 @@ npm install || yarn
 ```
 
 ## Configuration:
-In directory `functions` create file `config.js` and put this line for posting to slack with URL from GUG.cz Slack Dev Tools (please do not commit this file):
-
-```
-exports.slackPostingUrl = 'https://hooks.slack.com/services/.../.../...';
-``` 
+The repository uses Firebase remote configuration. All secret variables (e.g. Slackbot URL) should be stored there...
 
 ## Run: 
 
@@ -36,13 +28,7 @@ firebase serve --only functions
 
 ## Deploy: 
 
-Make sure you have correct URL in `config.js`
-
-```
-firebase use prod
-firebase deploy --only functions
-firebase deploy --only functions:saveEvent
-```
+All commits in brach `production` are automatically deployed using Circle CI/CD.  
 
 ## API
 ### Save Event:

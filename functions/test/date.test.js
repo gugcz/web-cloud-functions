@@ -17,9 +17,6 @@ describe("A EventDateFormatter for single-day event", function () {
   });
 
 
-  it("transform date string to string in format DD.MM.YYYY", function () {
-    expect(getTimezoneString("2017-09-02T16:00:00.000", "Europe/Prague")).toBe("3.9.2017")
-  })
 
   it("transform date string to string in format DD.MM.YYYY", function () {
     expect(EventDateFormatter.getDate(dates)).toBe("3.9.2017")
@@ -77,8 +74,7 @@ describe("A EventDateComparator -", function () {
       var event = {
         datesFilter: {
 
-          // TODO Generate date next year programmatically
-          start: '2018-09-02T16:00:00.000Z' // Event date is next year
+          start: getSameDayNextYear().toISOString() // Event date is next year
         }
       }
       expect(EventDateComparator.isPastEvent(event)).toEqual(false)
@@ -100,18 +96,18 @@ describe("A EventDateComparator -", function () {
     it("compares event date and return false for past event year ago", function () {
       var event = {
         datesFilter: {
-          start: '2017-09-02T16:00:00.000Z'
+          start: getSameDayLastYear().toISOString()
         }
       }
-      expect(EventDateComparator.isPastEventForMonthCount(event, 12)).toEqual(false)
+      // TODO - 13?
+      expect(EventDateComparator.isPastEventForMonthCount(event, 13)).toEqual(false)
     })
 
     it("compares event date and return false for future event", function () {
       var event = {
         datesFilter: {
 
-          // TODO Generate date next year programmatically
-          start: '2018-09-02T16:00:00.000Z' // Event date is next year
+          start: getSameDayNextYear().toISOString() // Event date is next year
         }
       }
       expect(EventDateComparator.isPastEvent(event)).toEqual(false)
@@ -135,7 +131,7 @@ describe("A EventDateComparator -", function () {
       var event = {
         datesFilter: {
           // TODO Generate date next year programmatically
-          start: '2018-09-02T16:00:00.000Z' // Event date is next year
+          start: getSameDayNextYear().toISOString() // Event date is next year
         }
       }
       expect(EventDateComparator.isFutureEvent(event)).toEqual(true)
@@ -178,3 +174,14 @@ describe("A EventDateComparator -", function () {
 
 });
 
+function getSameDayNextYear() {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  return date
+}
+
+function getSameDayLastYear() {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 1);
+  return date
+}

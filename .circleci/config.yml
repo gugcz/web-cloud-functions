@@ -1,0 +1,31 @@
+version: 2.1
+
+jobs:
+  build_and_test:
+    docker:
+      - image: circleci/node:10.16.0
+    steps:
+      - checkout
+      - run: cd functions
+      - run: cd functions && sudo npm install
+      - run: cd functions && npm test
+  deploy:
+    docker:
+      - image: circleci/node:10.16.0
+    steps:
+      - checkout
+      - run: sudo npm install -g firebase-tools
+      - run: firebase deploy --token=$FIREBASE_TOKEN --non-interactive --only functions
+
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - build_and_test
+      - deploy:
+          requires:
+           - build_and_test
+          filters:
+            branches:
+              only:
+               - production
